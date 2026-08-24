@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#edf4f1">
+<title>Cognitive Pattern Explorer</title>
+<style>
+:root{--bg:#edf4f1;--card:rgba(255,255,255,.82);--ink:#243634;--muted:#6d807c;--accent:#5b8c83;--accent2:#416d65;--soft:#dcebe7;--gold:#c9a96e;--border:rgba(66,99,94,.15);--shadow:0 20px 60px rgba(47,76,70,.12);--radius:24px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:radial-gradient(circle at 10% 10%,#cfe5df55,transparent 28%),radial-gradient(circle at 90% 15%,#e5d4a655,transparent 25%),linear-gradient(135deg,#eef5f2,#e7f0ed 55%,#f4f1e8);overflow-x:hidden}
+button,input,textarea{font:inherit}button{border:0;cursor:pointer;color:inherit}button:focus-visible,textarea:focus-visible{outline:3px solid #5b8c8355;outline-offset:3px}
+.ambient{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}.orb{position:absolute;border-radius:50%;opacity:.35;animation:float 12s ease-in-out infinite}.o1{width:180px;height:180px;background:#c5e1da;top:8%;left:-70px}.o2{width:130px;height:130px;background:#e6d5a9;right:-40px;top:42%;animation-delay:-4s}.o3{width:220px;height:220px;background:#d2e4df;left:45%;bottom:-130px;animation-delay:-7s}@keyframes float{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(20px,-25px,0)}}
+.app{position:relative;z-index:1;width:min(1050px,calc(100% - 28px));margin:auto;padding:22px 0 50px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:22px}.brand{font-weight:800;letter-spacing:-.02em}.brand span{color:var(--accent)}.mode{display:flex;align-items:center;gap:8px;background:#ffffff80;border:1px solid var(--border);padding:5px;border-radius:999px}.mode button{background:transparent;padding:8px 13px;border-radius:999px;color:var(--muted);font-size:.82rem}.mode button.active{background:var(--accent);color:#fff}
+.progress-wrap{height:8px;background:#ffffff80;border-radius:99px;overflow:hidden;margin-bottom:28px}.progress{height:100%;width:0;background:linear-gradient(90deg,var(--accent),#8aafa8);transition:width .5s ease}
+.screen{display:none;animation:enter .45s ease}.screen.active{display:block}@keyframes enter{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.hero,.panel{background:var(--card);backdrop-filter:blur(14px);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:var(--radius)}.hero{padding:clamp(30px,6vw,70px);text-align:center;min-height:65vh;display:flex;flex-direction:column;justify-content:center;align-items:center}.eyebrow{font-size:.76rem;text-transform:uppercase;letter-spacing:.18em;color:var(--accent);font-weight:800}.hero h1{font-size:clamp(2.2rem,7vw,4.8rem);line-height:.98;letter-spacing:-.06em;margin:15px 0}.hero p{max-width:650px;color:var(--muted);font-size:1.08rem;line-height:1.7}.breath{width:76px;height:76px;border-radius:50%;background:var(--soft);display:grid;place-items:center;margin:20px 0;box-shadow:0 0 0 12px #dcebe744;animation:breathe 5s ease-in-out infinite}@keyframes breathe{50%{transform:scale(1.12);box-shadow:0 0 0 22px #dcebe733}}
+.primary,.secondary{padding:13px 22px;border-radius:14px;font-weight:750;transition:.2s}.primary{background:var(--accent);color:#fff;box-shadow:0 8px 22px #5b8c8338}.primary:hover{background:var(--accent2);transform:translateY(-2px)}.secondary{background:#fff;border:1px solid var(--border);color:var(--accent2)}.actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:24px}
+.chapter-head{margin-bottom:22px}.chapter-head h2{font-size:clamp(1.8rem,4vw,3rem);letter-spacing:-.04em;margin:7px 0}.chapter-head p{color:var(--muted);line-height:1.6}.panel{padding:clamp(20px,4vw,34px);margin-bottom:18px}
+.scenario{font-size:1.25rem;line-height:1.5;margin-bottom:24px}.choices{display:grid;gap:12px}.choice{text-align:left;padding:17px 18px;background:#fff;border:1px solid var(--border);border-radius:16px;transition:.2s}.choice:hover{border-color:#5b8c8366;transform:translateX(3px)}.choice.selected{background:var(--soft);border-color:var(--accent);box-shadow:0 0 0 2px #5b8c8320}.choice small{display:block;color:var(--muted);margin-top:5px}
+.note{padding:12px 15px;background:#f7f5ec;border-left:3px solid var(--gold);border-radius:10px;color:#74684f;font-size:.88rem;line-height:1.5}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.drag-card{padding:18px;background:#fff;border:1px solid var(--border);border-radius:17px;cursor:grab;user-select:none;touch-action:none;transition:.2s}.drag-card:active{cursor:grabbing}.drag-card.dragging{opacity:.45;transform:scale(.97)}.drag-card .num{font-size:.7rem;color:var(--accent);font-weight:800;text-transform:uppercase}.drag-card h3{margin:6px 0;font-size:1rem}.drag-card p{margin:0;color:var(--muted);font-size:.82rem;line-height:1.45}
+.dropzone{min-height:72px;border:2px dashed #91afa9;border-radius:17px;padding:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#ffffff55;margin-top:15px}.dropzone.over{background:var(--soft)}.dropzone .placeholder{color:var(--muted);font-size:.9rem}.rank-chip{background:var(--accent);color:#fff;border-radius:12px;padding:9px 12px;font-size:.83rem}
+.timeline{position:relative;padding:8px 0}.timeline:before{content:"";position:absolute;left:25px;top:0;bottom:0;width:2px;background:#b8cec8}.time-item{position:relative;margin:0 0 16px 52px;background:#fff;border:1px solid var(--border);padding:16px;border-radius:16px;cursor:grab}.time-item:before{content:"";position:absolute;left:-34px;top:24px;width:14px;height:14px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 5px #dcebe7}.time-item strong{display:block}.time-item span{color:var(--muted);font-size:.82rem}.drag-hint{color:var(--muted);font-size:.85rem;margin-top:10px}
+.result-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}.insight-card{background:#fff;border:1px solid var(--border);border-radius:18px;padding:18px}.insight-card h3{margin-top:0}.bar{height:12px;background:#e7eeeb;border-radius:99px;overflow:hidden;margin:8px 0 14px}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#9bbdb6);border-radius:inherit;transition:width 1s ease}.pct{font-weight:800;color:var(--accent2)}textarea{width:100%;min-height:180px;border:1px solid var(--border);border-radius:16px;padding:16px;resize:vertical;background:#ffffffd9;color:var(--ink)}.journal-actions{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:12px}.tiny{font-size:.78rem;color:var(--muted)}.center{text-align:center}.hidden{display:none!important}.calm .hero,.calm .panel{box-shadow:0 16px 45px rgba(47,76,70,.08)}.stress .orb{animation-duration:6s}.stress .breath{animation-duration:2.8s}
+@media(max-width:700px){.app{width:min(100% - 18px,1050px);padding-top:12px}.topbar{align-items:flex-start}.result-grid{grid-template-columns:1fr}.hero{min-height:72vh;padding:28px 20px}.hero h1{font-size:2.65rem}.panel{padding:19px}.mode button{padding:7px 9px}.cards{grid-template-columns:1fr 1fr}}
+@media(max-width:430px){.cards{grid-template-columns:1fr}.mode{gap:2px}.mode button{font-size:.74rem;padding:7px}.topbar{flex-direction:column}.scenario{font-size:1.08rem}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="ambient" aria-hidden="true"><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div></div>
+
+<main class="app" id="app">
+<header class="topbar">
+  <div class="brand">Cognitive <span>Pattern</span> Explorer</div>
+  <div class="mode" aria-label="Experience mode">
+    <button class="mode-btn active" data-mode="calm">Calm</button>
+    <button class="mode-btn" data-mode="stress">Stress</button>
+  </div>
+</header>
+<div class="progress-wrap" aria-label="Journey progress"><div class="progress" id="progress"></div></div>
+
+<section class="screen active" id="start">
+  <div class="hero">
+    <div class="eyebrow">A reflective journey</div>
+    <div class="breath" aria-hidden="true">✦</div>
+    <h1>How does your mind<br>move through a moment?</h1>
+    <p>Explore a few everyday scenarios, make choices, arrange priorities, and notice the patterns that emerge. There are no right answers.</p>
+    <div class="note">Educational reflection only — this experience does not diagnose or clinically assess mental health.</div>
+    <div class="actions"><button class="primary" id="startBtn">Begin exploring →</button></div>
+  </div>
+</section>
+
+<section class="screen" id="chapter1">
+  <div class="chapter-head"><div class="eyebrow">Chapter 1 · Discover</div><h2>Follow your first instinct.</h2><p>Choose the response that feels most like what you would naturally do. Don't over-analyze it.</p></div>
+  <div class="panel">
+    <div class="scenario" id="scenarioText"></div>
+    <div class="choices" id="choices" role="radiogroup"></div>
+    <div class="actions"><button class="primary hidden" id="nextScenario">Continue →</button></div>
+  </div>
+</section>
+
+<section class="screen" id="chapter2">
+  <div class="chapter-head"><div class="eyebrow">Chapter 2 · Priorities</div><h2>What deserves your attention first?</h2><p>Drag the cards into your preferred order. Put the most important item first.</p></div>
+  <div class="panel">
+    <div class="cards" id="priorityCards"></div>
+    <div class="dropzone" id="priorityZone" aria-label="Priority order"><span class="placeholder">Drop cards here to build your order…</span></div>
+    <div class="actions"><button class="primary hidden" id="priorityNext">Continue →</button></div>
+  </div>
+</section>
+
+<section class="screen" id="chapter3">
+  <div class="chapter-head"><div class="eyebrow">Chapter 3 · Map</div><h2>Arrange the way a decision unfolds.</h2><p>Drag the moments into the order that best matches how you tend to move through uncertainty.</p></div>
+  <div class="panel">
+    <div class="timeline" id="timeline"></div>
+    <div class="drag-hint">Tip: use the grip area of a card, or drag it directly on touch screens.</div>
+    <div class="actions"><button class="primary" id="finishBtn">Reveal reflection →</button></div>
+  </div>
+</section>
+
+<section class="screen" id="final">
+  <div class="chapter-head center"><div class="eyebrow">Your reflection</div><h2>A pattern, not a label.</h2><p>These percentages describe the choices you made in this small exercise. They are prompts for self-reflection, not psychological measurements.</p></div>
+  <div class="result-grid">
+    <div class="panel">
+      <h3>Your thinking tendencies</h3>
+      <div id="results"></div>
+    </div>
+    <div class="panel">
+      <h3>What this may suggest</h3>
+      <div class="insight-card" id="mainInsight"></div>
+      <div class="note" style="margin-top:14px">Your thinking can shift with context, energy, relationships, deadlines, and experience.</div>
+    </div>
+  </div>
+  <div class="panel">
+    <h3>Final Reflection Journal</h3>
+    <p class="tiny">What did you notice about yourself while making these choices?</p>
+    <textarea id="journal" aria-label="Reflection journal" placeholder="Write anything that surprised you, felt familiar, or made you curious…"></textarea>
+    <div class="journal-actions">
+      <button class="secondary" id="restartBtn">Explore again</button>
+      <button class="primary" id="saveBtn">Save reflection locally</button>
+    </div>
+    <p class="tiny" id="saveStatus" aria-live="polite"></p>
+  </div>
+</section>
+</main>
+
+<script>
+"use strict";
+
+const scenarios=[
+ {q:"A friend sends you a message that simply says, “Can we talk later?” What happens first?",a:[
+  ["I think through what they might want to discuss.","analytical"],
+  ["I immediately notice how the message makes me feel.","emotional"],
+  ["My mind starts generating several possible explanations.","overthinking"],
+  ["I reply and ask what is going on.","action"],
+  ["I pause, consider the possibilities, then respond calmly.","balanced"]]},
+ {q:"You have two good options for a weekend plan. Neither is clearly better. What feels natural?",a:[
+  ["I compare the practical pros and cons.","analytical"],
+  ["I choose the one that feels more meaningful.","emotional"],
+  ["I keep revisiting the decision before committing.","overthinking"],
+  ["I pick one and make the plan.","action"],
+  ["I weigh the facts and my feelings together.","balanced"]]},
+ {q:"A project suddenly changes direction. Your first reaction is usually to…",a:[
+  ["Figure out exactly what changed and why.","analytical"],
+  ["Notice how the change affects everyone involved.","emotional"],
+  ["Wonder what could go wrong next.","overthinking"],
+  ["Start adapting the plan immediately.","action"],
+  ["Take a breath, understand the change, then adjust.","balanced"]]},
+ {q:"You receive feedback that is partly positive and partly critical. You tend to…",a:[
+  ["Separate the feedback into specific points.","analytical"],
+  ["Focus on the tone and meaning behind it.","emotional"],
+  ["Replay the critical part in your head.","overthinking"],
+  ["Decide what to change and move forward.","action"],
+  ["Reflect on it, keep what helps, and let the rest settle.","balanced"]}
+];
+
+const priorities=[
+ {id:"clarity",title:"Clarity",desc:"Understand what is really happening.",type:"analytical"},
+ {id:"people",title:"People",desc:"Consider how others may experience it.",type:"emotional"},
+ {id:"possibility",title:"Possibilities",desc:"Explore what could happen next.",type:"overthinking"},
+ {id:"momentum",title:"Momentum",desc:"Take a useful step forward.",type:"action"},
+ {id:"balance",title:"Balance",desc:"Make room for facts and feelings.",type:"balanced"}
+];
+
+const timelineItems=[
+ {id:"notice",title:"Notice",desc:"Something changes or feels uncertain.",type:"emotional"},
+ {id:"question",title:"Question",desc:"You ask what is really going on.",type:"analytical"},
+ {id:"possibilities",title:"Explore",desc:"You consider different possibilities.",type:"overthinking"},
+ {id:"choose",title:"Choose",desc:"You settle on a direction.",type:"balanced"},
+ {id:"move",title:"Move",desc:"You take the next practical step.",type:"action"}
+];
+
+const labels={
+ analytical:"Analytical Thinker",
+ emotional:"Emotional Intuitive",
+ overthinking:"Overthinking Loop Style",
+ action:"Action-First Decision Maker",
+ balanced:"Balanced Reflective Thinker"
+};
+
+const state={chapter:0,scenario:0,scores:{analytical:0,emotional:0,overthinking:0,action:0,balanced:0},priority:[],timeline:[]};
+
+const $=id=>document.getElementById(id);
+const screens=["start","chapter1","chapter2","chapter3","final"];
+
+function show(id){
+ screens.forEach(x=>$(x).classList.toggle("active",x===id));
+ const idx=screens.indexOf(id);
+ $("progress").style.width=(idx/(screens.length-1)*100)+"%";
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function renderScenario(){
+ const s=scenarios[state.scenario];
+ $("scenarioText").textContent=s.q;
+ $("choices").innerHTML="";
+ s.a.forEach((item,i)=>{
+  const b=document.createElement("button");
+  b.className="choice";
+  b.setAttribute("role","radio");
+  b.setAttribute("aria-checked","false");
+  b.innerHTML="<strong>"+item[0]+"</strong><small>"+(i+1)+"</small>";
+  b.onclick=()=>{
+   document.querySelectorAll(".choice").forEach(x=>{x.classList.remove("selected");x.setAttribute("aria-checked","false")});
+   b.classList.add("selected");b.setAttribute("aria-checked","true");
+   b.dataset.type=item[1];
+   $("nextScenario").classList.remove("hidden");
+  };
+  $("choices").appendChild(b);
+ });
+ $("nextScenario").classList.add("hidden");
+}
+
+function start(){
+ state.chapter=1;state.scenario=0;
+ renderScenario();show("chapter1");
+}
+
+function nextScenario(){
+ const selected=document.querySelector(".choice.selected");
+ if(!selected)return;
+ state.scores[selected.dataset.type]++;
+ state.scenario++;
+ if(state.scenario<scenarios.length){renderScenario();}
+ else{renderPriorities();show("chapter2");}
+}
+
+function makeDraggable(el,onDrop){
+ el.draggable=true;
+ el.addEventListener("dragstart",e=>{el.classList.add("dragging");e.dataTransfer.setData("text/plain",el.dataset.id)});
+ el.addEventListener("dragend",()=>el.classList.remove("dragging"));
+ let startY=0,ghost=null;
+ el.addEventListener("pointerdown",e=>{
+  if(e.pointerType==="mouse")return;
+  startY=e.clientY;el.setPointerCapture(e.pointerId);el.classList.add("dragging");
+  ghost=el.cloneNode(true);ghost.style.position="fixed";ghost.style.pointerEvents="none";ghost.style.width=el.offsetWidth+"px";ghost.style.zIndex=20;ghost.style.opacity=".85";ghost.style.left=(e.clientX-el.offsetWidth/2)+"px";ghost.style.top=(e.clientY-30)+"px";document.body.appendChild(ghost);
+ });
+ el.addEventListener("pointermove",e=>{
+  if(!ghost)return;
+  ghost.style.left=(e.clientX-el.offsetWidth/2)+"px";ghost.style.top=(e.clientY-30)+"px";
+ });
+ el.addEventListener("pointerup",e=>{
+  if(!ghost)return;
+  const target=document.elementFromPoint(e.clientX,e.clientY);
+  const zone=target&&target.closest(".dropzone,.timeline");
+  if(zone)onDrop(el.dataset.id,zone,target);
+  ghost.remove();ghost=null;el.classList.remove("dragging");
+ });
+}
+
+function renderPriorities(){
+ const wrap=$("priorityCards"),zone=$("priorityZone");wrap.innerHTML="";zone.innerHTML='<span class="placeholder">Drop cards here to build your order…</span>';state.priority=[];
+ priorities.forEach((p,i)=>{
+  const el=document.createElement("div");el.className="drag-card";el.dataset.id=p.id;
+  el.innerHTML='<div class="num">Priority card '+(i+1)+'</div><h3>'+p.title+'</h3><p>'+p.desc+'</p>';
+  el.addEventListener("dragstart",e=>{el.classList.add("dragging");e.dataTransfer.setData("text/plain",p.id)});
+  el.addEventListener("dragend",()=>el.classList.remove("dragging"));
+  makeDraggable(el,(id,target)=>dropPriority(id,target));
+  wrap.appendChild(el);
+ });
+ zone.addEventListener("dragover",e=>{e.preventDefault();zone.classList.add("over")});
+ zone.addEventListener("dragleave",()=>zone.classList.remove("over"));
+ zone.addEventListener("drop",e=>{e.preventDefault();zone.classList.remove("over");dropPriority(e.dataTransfer.getData("text/plain"),zone,e.target)});
+}
+
+function dropPriority(id,zone,target){
+ const p=priorities.find(x=>x.id===id);if(!p)return;
+ if(state.priority.includes(id))return;
+ state.priority.push(id);
+ const old=zone.querySelector(".placeholder");if(old)old.remove();
+ const chip=document.createElement("div");chip.className="rank-chip";chip.dataset.id=id;chip.textContent=state.priority.length+". "+p.title;
+ zone.appendChild(chip);
+ const source=document.querySelector('#priorityCards [data-id="'+id+'"]');if(source)source.remove();
+ if(state.priority.length===priorities.length)$("priorityNext").classList.remove("hidden");
+}
+
+function renderTimeline(){
+ const t=$("timeline");t.innerHTML="";
+ timelineItems.forEach((x,i)=>{
+  const el=document.createElement("div");el.className="time-item";el.dataset.id=x.id;el.innerHTML="<strong>"+x.title+"</strong><span>"+x.desc+"</span>";
+  el.draggable=true;
+  el.addEventListener("dragstart",e=>{el.classList.add("dragging");e.dataTransfer.setData("text/plain",x.id)});
+  el.addEventListener("dragend",()=>el.classList.remove("dragging"));
+  makeDraggable(el,(id,zone,target)=>dropTimeline(id,target));
+  t.appendChild(el);
+ });
+ t.addEventListener("dragover",e=>e.preventDefault());
+ t.addEventListener("drop",e=>{e.preventDefault();dropTimeline(e.dataTransfer.getData("text/plain"),e.target)});
+}
+
+function dropTimeline(id,target){
+ const source=document.querySelector('#timeline [data-id="'+id+'"]');if(!source)return;
+ const targetItem=target.closest(".time-item");
+ if(targetItem&&targetItem!==source){
+  const rect=targetItem.getBoundingClientRect();
+  if(event.clientY<rect.top+rect.height/2)targetItem.before(source);else targetItem.after(source);
+ }
+ state.timeline=[...document.querySelectorAll(".time-item")].map(x=>x.dataset.id);
+}
+
+function calculate(){
+ const total=Object.values(state.scores).reduce((a,b)=>a+b,0)||1;
+ const priorityWeight=state.priority.map((id,i)=>priorities.find(x=>x.id===id)?.type).filter(Boolean);
+ priorityWeight.forEach((type,i)=>state.scores[type]+=Math.max(1,5-i));
+ state.timeline.forEach((id,i)=>{const item=timelineItems.find(x=>x.id===id);if(item)state.scores[item.type]+=Math.max(1,5-i);});
+ const sum=Object.values(state.scores).reduce((a,b)=>a+b,0)||1;
+ return Object.entries(state.scores).map(([type,value])=>[type,Math.round(value/sum*100)]);
+}
+
+function showResults(){
+ const data=calculate().sort((a,b)=>b[1]-a[1]);
+ const wrap=$("results");wrap.innerHTML="";
+ data.forEach(([type,pct])=>{
+  const d=document.createElement("div");
+  d.innerHTML="<strong>"+labels[type]+" <span class='pct'>"+pct+"%</span></strong><div class='bar'><i style='width:"+pct+"%'></i></div>";
+  wrap.appendChild(d);
+ });
+ const top=data[0][0];
+ const messages={
+  analytical:"Your choices often lean toward understanding the structure of a situation before moving. This suggests that clarity, evidence, and making sense of details may help you feel oriented.",
+  emotional:"Your choices often give weight to feelings, relationships, and the human meaning behind a situation. This suggests that emotional context may be an important source of information for you.",
+  overthinking:"Your choices often leave room for several possible explanations or outcomes. This suggests a mind that naturally explores possibilities, especially when certainty is limited.",
+  action:"Your choices often move quickly toward a practical next step. This suggests that momentum and learning through action may be especially useful ways for you to create clarity.",
+  balanced:"Your choices often combine analysis, emotion, and action. This suggests that you may naturally look for a middle path rather than relying on one single way of deciding."
+ };
+ $("mainInsight").innerHTML="<h3>"+labels[top]+"</h3><p>"+messages[top]+"</p>";
+ show("final");
+}
+
+$("startBtn").onclick=start;
+$("nextScenario").onclick=nextScenario;
+$("priorityNext").onclick=()=>{renderTimeline();show("chapter3")};
+$("finishBtn").onclick=showResults;
+
+document.querySelectorAll(".mode-btn").forEach(btn=>{
+ btn.onclick=()=>{
+  document.querySelectorAll(".mode-btn").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  $("app").classList.toggle("stress",btn.dataset.mode==="stress");
+  $("app").classList.toggle("calm",btn.dataset.mode==="calm");
+ };
+});
+
+$("saveBtn").onclick=()=>{
+ localStorage.setItem("cognitivePatternExplorerJournal",$("journal").value);
+ $("saveStatus").textContent="Saved on this device. Nothing was uploaded.";
+};
+$("journal").value=localStorage.getItem("cognitivePatternExplorerJournal")||"";
+
+$("restartBtn").onclick=()=>{
+ state.scenario=0;state.scores={analytical:0,emotional:0,overthinking:0,action:0,balanced:0};state.priority=[];state.timeline=[];
+ renderScenario();show("chapter1");
+};
+
+renderScenario();
+</script>
+</body>
+</html>
