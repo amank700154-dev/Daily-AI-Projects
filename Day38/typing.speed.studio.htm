@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Typing Speed Studio — Creative Writing</title>
+<style>
+:root{
+ --bg:#08090d;--panel:#11131a;--panel2:#171a23;--text:#f5f7fb;--muted:#8f98aa;
+ --accent:#b98cff;--accent2:#ff79c6;--good:#69e6a5;--bad:#ff6b7a;
+ --line:rgba(255,255,255,.08);--shadow:0 25px 70px rgba(0,0,0,.38);
+ --fontSize:22px;--radius:20px
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+ margin:0;background:
+ radial-gradient(circle at 10% 0%,rgba(185,140,255,.14),transparent 28%),
+ radial-gradient(circle at 90% 15%,rgba(255,121,198,.09),transparent 30%),
+ var(--bg);color:var(--text);
+ font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+ min-height:100vh
+}
+button,select,input,textarea{font:inherit}
+button{cursor:pointer}
+.app{max-width:1320px;margin:auto;padding:25px 24px 70px}
+.top{
+ display:flex;align-items:center;justify-content:space-between;gap:20px;
+ border-bottom:1px solid var(--line);padding-bottom:20px
+}
+.logo{display:flex;align-items:center;gap:12px}
+.logoMark{
+ width:46px;height:46px;border-radius:15px;display:grid;place-items:center;font-size:22px;
+ background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 12px 35px rgba(185,140,255,.2)
+}
+.logo h1{font-size:18px;margin:0;letter-spacing:-.5px}
+.logo p{margin:3px 0 0;font-size:11px;color:var(--muted)}
+.topActions{display:flex;gap:8px}
+.iconBtn{
+ width:40px;height:40px;border-radius:12px;background:var(--panel);border:1px solid var(--line);
+ color:var(--text);transition:.2s
+}
+.iconBtn:hover{background:var(--panel2);transform:translateY(-2px)}
+.hero{padding:45px 0 30px}
+.eyebrow{font-size:11px;color:var(--accent);font-weight:800;letter-spacing:2px;text-transform:uppercase}
+.hero h2{
+ font-size:clamp(36px,6vw,66px);line-height:.98;letter-spacing:-3px;
+ margin:10px 0 14px;max-width:800px
+}
+.hero p{max-width:690px;color:var(--muted);line-height:1.65;font-size:15px}
+.controls{
+ display:flex;flex-wrap:wrap;gap:9px;padding:14px;border:1px solid var(--line);
+ background:rgba(17,19,26,.72);border-radius:18px;margin-bottom:15px
+}
+.controlGroup{display:flex;gap:6px;align-items:center}
+.label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-right:3px}
+.pill{
+ padding:9px 12px;border:1px solid var(--line);background:rgba(255,255,255,.035);
+ color:var(--muted);border-radius:10px;font-size:11px;font-weight:700;transition:.2s
+}
+.pill:hover{color:#fff;background:rgba(255,255,255,.07)}
+.pill.active{color:#fff;background:rgba(185,140,255,.15);border-color:rgba(185,140,255,.4)}
+.customInput{
+ flex:1;min-width:220px;background:rgba(255,255,255,.035);border:1px solid var(--line);
+ color:#fff;border-radius:10px;padding:9px 12px;font-size:12px;outline:none
+}
+.workspace{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:15px}
+.typingCard,.sideCard{
+ background:rgba(17,19,26,.84);border:1px solid var(--line);border-radius:var(--radius);
+ box-shadow:var(--shadow)
+}
+.typingCard{padding:24px}
+.sessionTop{display:flex;justify-content:space-between;gap:20px;align-items:center;margin-bottom:20px}
+.modeName{font-weight:800;font-size:13px}
+.modeName span{color:var(--muted);font-weight:500;margin-left:8px}
+.status{font-size:11px;color:var(--muted)}
+.stats{
+ display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:22px
+}
+.stat{padding:13px;border-radius:13px;background:rgba(255,255,255,.035);border:1px solid var(--line)}
+.stat span{display:block;color:var(--muted);font-size:9px;text-transform:uppercase;letter-spacing:.8px}
+.stat strong{font-size:20px;display:block;margin-top:4px;letter-spacing:-.5px}
+.textBox{
+ position:relative;border:1px solid var(--line);background:#0c0e14;border-radius:17px;
+ padding:28px;min-height:270px;overflow:hidden
+}
+.textBox.focus .before,.textBox.focus .after{opacity:0}
+.textBox.focus .lineActive{opacity:1}
+.prompt{
+ font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;
+ font-size:var(--fontSize);line-height:1.8;letter-spacing:.2px;white-space:pre-wrap;
+ user-select:none
+}
+.char{color:#60697b;position:relative}
+.char.correct{color:#edf2f8}
+.char.incorrect{color:var(--bad);background:rgba(255,107,122,.12);border-radius:3px}
+.char.extra{color:#ff6678;background:rgba(255,107,122,.14)}
+.char.cursor{border-left:2px solid var(--accent);animation:blink .9s infinite}
+@keyframes blink{50%{border-color:transparent}}
+.input{
+ position:absolute;opacity:0;pointer-events:none;width:1px;height:1px
+}
+.progressLine{height:5px;background:#20232d;border-radius:99px;margin-top:17px;overflow:hidden}
+.progressLine i{display:block;width:0;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .2s}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.primary,.secondary{
+ border:0;border-radius:12px;padding:12px 17px;font-size:12px;font-weight:800;transition:.2s
+}
+.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 10px 25px rgba(185,140,255,.16)}
+.secondary{background:rgba(255,255,255,.06);color:#fff;border:1px solid var(--line)}
+.primary:hover,.secondary:hover{transform:translateY(-2px)}
+.sideCard{padding:20px;height:max-content}
+.sideTitle{font-size:12px;font-weight:800;margin-bottom:15px}
+.sideSection{margin-bottom:22px}
+.key{
+ display:flex;justify-content:space-between;align-items:center;
+ padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:11px
+}
+.key span{color:var(--muted)}
+.key kbd{padding:3px 7px;border-radius:5px;background:#20232d;border:1px solid var(--line);font-size:9px}
+.tip{
+ padding:13px;border-radius:12px;background:rgba(185,140,255,.07);
+ color:var(--muted);font-size:11px;line-height:1.6
+}
+.keyboard{
+ display:grid;grid-template-columns:repeat(13,1fr);gap:3px;margin-top:16px
+}
+.keycap{
+ min-height:27px;border:1px solid var(--line);background:#171a23;border-radius:5px;
+ display:grid;place-items:center;font-size:8px;color:var(--muted);transition:.15s
+}
+.keycap.hit{background:rgba(255,107,122,.25);border-color:rgba(255,107,122,.4);color:#fff}
+.keycap.good{background:rgba(105,230,165,.16);border-color:rgba(105,230,165,.35);color:#fff}
+.overlay{
+ position:fixed;inset:0;background:rgba(4,5,8,.78);backdrop-filter:blur(12px);
+ z-index:20;display:none;align-items:center;justify-content:center;padding:20px
+}
+.overlay.show{display:flex}
+.modal{
+ width:min(1050px,100%);max-height:90vh;overflow:auto;background:#11131a;
+ border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);padding:28px
+}
+.modalHead{display:flex;justify-content:space-between;align-items:flex-start;gap:15px}
+.modal h2{font-size:30px;margin:0 0 5px;letter-spacing:-1px}
+.modalHead p{margin:0;color:var(--muted);font-size:12px}
+.close{background:none;border:1px solid var(--line);color:#fff;border-radius:10px;width:38px;height:38px}
+.dashboardGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:24px 0}
+.dash{
+ padding:16px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--line)
+}
+.dash span{display:block;color:var(--muted);font-size:9px;text-transform:uppercase}
+.dash strong{font-size:24px;display:block;margin-top:4px}
+.analyticsGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.chartCard{
+ background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:16px;padding:18px
+}
+.chartCard h3{font-size:12px;margin:0 0 15px}
+canvas{width:100%;height:170px;display:block}
+.heat{
+ display:grid;grid-template-columns:repeat(13,1fr);gap:4px
+}
+.heat div{height:23px;border-radius:4px;background:rgba(255,255,255,.05);display:grid;place-items:center;font-size:8px;color:var(--muted)}
+.summary{
+ margin-top:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px
+}
+.summaryBox{padding:15px;border:1px solid var(--line);border-radius:14px}
+.summaryBox h4{margin:0 0 7px;font-size:11px}.summaryBox p{margin:0;color:var(--muted);font-size:11px;line-height:1.6}
+.badges{display:flex;gap:8px;flex-wrap:wrap}
+.badge{padding:8px 10px;border-radius:9px;background:rgba(185,140,255,.1);border:1px solid rgba(185,140,255,.25);font-size:10px}
+.history{margin-top:15px}
+.historyRow{display:grid;grid-template-columns:1.5fr repeat(4,1fr);gap:10px;padding:11px;border-bottom:1px solid var(--line);font-size:10px;color:var(--muted)}
+.historyRow strong{color:#fff}
+.hidden{display:none!important}
+.pauseLayer{
+ position:absolute;inset:0;background:rgba(8,9,13,.82);display:none;place-items:center;z-index:3;
+ backdrop-filter:blur(5px);border-radius:17px
+}
+.pauseLayer.show{display:grid}
+.pauseLayer div{text-align:center}.pauseLayer strong{font-size:25px}.pauseLayer p{color:var(--muted);font-size:12px}
+.toast{
+ position:fixed;right:20px;bottom:20px;background:#171a23;border:1px solid var(--line);
+ padding:12px 15px;border-radius:12px;font-size:11px;opacity:0;transform:translateY(10px);
+ pointer-events:none;transition:.3s;z-index:50
+}
+.toast.show{opacity:1;transform:none}
+@media(max-width:950px){
+ .workspace{grid-template-columns:1fr}.sideCard{display:none}
+ .stats{grid-template-columns:repeat(3,1fr)}
+ .dashboardGrid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:650px){
+ .app{padding:15px 11px 50px}.hero{padding-top:30px}
+ .hero h2{font-size:42px;letter-spacing:-2px}
+ .typingCard{padding:14px}.textBox{padding:18px;min-height:240px}
+ .stats{grid-template-columns:repeat(2,1fr)}
+ .analyticsGrid,.summary{grid-template-columns:1fr}
+ .dashboardGrid{grid-template-columns:1fr 1fr}
+ .prompt{font-size:18px}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+<header class="top">
+ <div class="logo">
+  <div class="logoMark">⌨</div>
+  <div><h1>Typing Speed Studio</h1><p>Creative Writing Edition</p></div>
+ </div>
+ <div class="topActions">
+  <button class="iconBtn" id="soundBtn" title="Toggle sound">🔊</button>
+  <button class="iconBtn" id="focusBtn" title="Focus mode">◉</button>
+  <button class="iconBtn" id="themeBtn" title="Theme">☾</button>
+ </div>
+</header>
+
+<section class="hero">
+ <div class="eyebrow">Creative writing · precision · rhythm</div>
+ <h2>Let your fingers<br>find the story.</h2>
+ <p>Build speed without losing the feeling of language. Practice with original literature-style passages, measure your rhythm, and learn exactly where your typing breaks down.</p>
+</section>
+
+<div class="controls">
+ <div class="controlGroup">
+  <span class="label">Mode</span>
+  <button class="pill active" data-mode="time">Time</button>
+  <button class="pill" data-mode="words">Words</button>
+  <button class="pill" data-mode="quote">Quote</button>
+  <button class="pill" data-mode="zen">Zen</button>
+  <button class="pill" data-mode="custom">Custom</button>
+ </div>
+ <div class="controlGroup" id="timeOptions">
+  <span class="label">Duration</span>
+  <button class="pill active" data-time="15">15s</button>
+  <button class="pill" data-time="30">30s</button>
+  <button class="pill" data-time="60">60s</button>
+  <button class="pill" data-time="120">120s</button>
+ </div>
+ <div class="controlGroup hidden" id="wordOptions">
+  <span class="label">Words</span>
+  <button class="pill active" data-words="25">25</button>
+  <button class="pill" data-words="50">50</button>
+  <button class="pill" data-words="100">100</button>
+  <button class="pill" data-words="250">250</button>
+ </div>
+ <input class="customInput hidden" id="customText" placeholder="Paste your own text here...">
+</div>
+
+<main class="workspace">
+ <section class="typingCard">
+  <div class="sessionTop">
+   <div class="modeName" id="modeLabel">Time Mode <span>15 seconds</span></div>
+   <div class="status" id="status">Click the text and start typing</div>
+  </div>
+
+  <div class="stats">
+   <div class="stat"><span>WPM</span><strong id="wpm">0</strong></div>
+   <div class="stat"><span>Raw WPM</span><strong id="raw">0</strong></div>
+   <div class="stat"><span>Accuracy</span><strong id="accuracy">100%</strong></div>
+   <div class="stat"><span>CPM</span><strong id="cpm">0</strong></div>
+   <div class="stat"><span>Time</span><strong id="time">15s</strong></div>
+   <div class="stat"><span>Mistakes</span><strong id="mistakes">0</strong></div>
+   <div class="stat"><span>Streak</span><strong id="streak">0</strong></div>
+   <div class="stat"><span>Progress</span><strong id="completion">0%</strong></div>
+   <div class="stat"><span>Remaining</span><strong id="remaining">15s</strong></div>
+   <div class="stat"><span>Session</span><strong id="elapsed">0:00</strong></div>
+  </div>
+
+  <div class="textBox" id="textBox">
+   <div class="pauseLayer" id="pauseLayer"><div><strong>Paused</strong><p>Press Space or click Resume to continue.</p></div></div>
+   <div class="prompt" id="prompt"></div>
+   <textarea id="typingInput" class="input" aria-label="Typing input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+  </div>
+
+  <div class="progressLine"><i id="progress"></i></div>
+
+  <div class="actions">
+   <button class="primary" id="restart">↻ Restart</button>
+   <button class="secondary" id="pause">Ⅱ Pause</button>
+   <button class="secondary" id="resultsBtn">Analytics</button>
+  </div>
+ </section>
+
+ <aside class="sideCard">
+  <div class="sideSection">
+   <div class="sideTitle">Creative Writing Studio</div>
+   <div class="tip">Your passages change between sessions. Accuracy comes first; speed naturally follows consistent rhythm.</div>
+  </div>
+  <div class="sideSection">
+   <div class="sideTitle">Shortcuts</div>
+   <div class="key"><span>Restart</span><kbd>Tab + Enter</kbd></div>
+   <div class="key"><span>Pause</span><kbd>Space</kbd></div>
+   <div class="key"><span>Focus</span><kbd>Ctrl + Shift + F</kbd></div>
+   <div class="key"><span>New passage</span><kbd>Esc</kbd></div>
+  </div>
+  <div class="sideSection">
+   <div class="sideTitle">Typing rhythm</div>
+   <div class="tip" id="rhythmTip">Start typing to build your rhythm profile.</div>
+  </div>
+  <div class="sideSection">
+   <div class="sideTitle">Keyboard accuracy</div>
+   <div class="keyboard" id="keyboard"></div>
+  </div>
+ </aside>
+</main>
+</div>
+
+<div class="overlay" id="overlay">
+ <div class="modal">
+  <div class="modalHead">
+   <div><div class="eyebrow">Session complete</div><h2>Your typing profile</h2><p id="resultSubtitle">Creative writing performance analysis</p></div>
+   <button class="close" id="closeResults">×</button>
+  </div>
+
+  <div class="dashboardGrid">
+   <div class="dash"><span>WPM</span><strong id="rWpm">0</strong></div>
+   <div class="dash"><span>Raw WPM</span><strong id="rRaw">0</strong></div>
+   <div class="dash"><span>Accuracy</span><strong id="rAcc">0%</strong></div>
+   <div class="dash"><span>Consistency</span><strong id="rConsistency">0%</strong></div>
+   <div class="dash"><span>Completion</span><strong id="rCompletion">0%</strong></div>
+   <div class="dash"><span>Correct Characters</span><strong id="rCorrect">0</strong></div>
+   <div class="dash"><span>Incorrect</span><strong id="rIncorrect">0</strong></div>
+   <div class="dash"><span>Duration</span><strong id="rDuration">0s</strong></div>
+  </div>
+
+  <div class="analyticsGrid">
+   <div class="chartCard"><h3>WPM Progress</h3><canvas id="wpmChart"></canvas></div>
+   <div class="chartCard"><h3>Accuracy Progress</h3><canvas id="accChart"></canvas></div>
+   <div class="chartCard"><h3>Error Heatmap</h3><div class="heat" id="heatmap"></div></div>
+   <div class="chartCard">
+    <h3>Typing Rhythm</h3>
+    <div class="tip" id="rhythmResult"></div>
+    <div class="badges" id="badges" style="margin-top:12px"></div>
+   </div>
+  </div>
+
+  <div class="summary">
+   <div class="summaryBox"><h4>💪 Strengths</h4><p id="strengths"></p></div>
+   <div class="summaryBox"><h4>🎯 Focus Areas</h4><p id="weaknesses"></p></div>
+   <div class="summaryBox"><h4>🧠 Next Practice</h4><p id="suggestion"></p></div>
+  </div>
+
+  <div class="history">
+   <div class="sideTitle" style="margin-top:25px">Recent Sessions</div>
+   <div id="historyList"></div>
+  </div>
+ </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+
+const passages=[
+`The rain arrived quietly, first as a silver whisper against the window, then as a steady rhythm that softened the entire city. Mara watched the streets blur beneath the evening lights and wondered how many stories were unfolding behind those glowing curtains.`,
+`At dawn, the old garden seemed to remember everything. Roses leaned toward the broken fountain, ivy climbed the stone walls, and somewhere beyond the trees a bird repeated the same bright note as though it were trying to wake the house from a very long dream.`,
+`He carried the letter for seven years before he finally opened it. The paper had yellowed at the edges, but the handwriting remained familiar. Outside, winter pressed its pale face against the glass, and for the first time he understood that some answers arrive only after we stop asking for them.`,
+`The train disappeared into the mist, leaving Clara alone on the platform with a suitcase, a borrowed coat, and a decision she had postponed for too long. She smiled despite herself. Sometimes the road becomes clearer only after the familiar one disappears.`,
+`By midnight, the bookstore was almost empty. A lamp burned above the poetry shelf, casting a small circle of gold across the wooden floor. Elias turned a page, heard the rain begin again, and felt that rare sensation of being exactly where he was meant to be.`,
+`The sea was calm that morning, but the lighthouse keeper knew better than to trust it. Beyond the horizon, clouds gathered in dark layers. He checked the lantern twice, closed the heavy door, and wrote a final note before the storm arrived.`,
+`She kept a notebook beside her bed for sentences that appeared in dreams. Most were fragments, strange and unfinished, but one night she woke with an entire story in her mind. By sunrise, she had written the first page and forgotten why she had ever been afraid to begin.`
+];
+
+const quotes=[
+`We are all in the gutter, but some of us are looking at the stars.`,
+`There is no greater agony than bearing an untold story inside you.`,
+`It is never too late to be what you might have been.`,
+`Not all those who wander are lost.`,
+`And now that you don't have to be perfect, you can be good.`,
+`The future belongs to those who believe in the beauty of their dreams.`
+];
+
+const keys="1234567890qwertyuiopasdfghjklzxcvbnm".split("");
+const state={
+ mode:"time",duration:15,wordCount:25,text:"",
+ started:false,finished:false,paused:false,startTime:0,elapsed:0,
+ typed:"",errors:0,streak:0,maxStreak:0,correct:0,incorrect:0,extra:0,missed:0,
+ wpmHistory:[],accHistory:[],keyErrors:{},sound:true,focus:false,
+ interval:null,sessionHistory:JSON.parse(localStorage.getItem("typingStudioHistory")||"[]")
+};
+
+const $=id=>document.getElementById(id);
+
+function random(arr){return arr[Math.floor(Math.random()*arr.length)]}
+
+function generateText(){
+ if(state.mode==="custom")return $("customText").value.trim()||random(passages);
+ if(state.mode==="quote")return random(quotes);
+ let text=random(passages);
+ if(state.mode==="words"){
+  let words=text.split(/\s+/);
+  while(words.length<state.wordCount)words=words.concat(random(passages).split(/\s+/));
+  return words.slice(0,state.wordCount).join(" ");
+ }
+ return text+" "+random(passages);
+}
+
+function setup(){
+ buildKeyboard();
+ bindControls();
+ reset();
+}
+
+function buildKeyboard(){
+ $("keyboard").innerHTML=keys.map(k=>`<div class="keycap" id="key-${k}">${k.toUpperCase()}</div>`).join("");
+}
+
+function bindControls(){
+ document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("[data-mode]").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active");state.mode=b.dataset.mode;
+  $("timeOptions").classList.toggle("hidden",state.mode!=="time");
+  $("wordOptions").classList.toggle("hidden",state.mode!=="words");
+  $("customText").classList.toggle("hidden",state.mode!=="custom");
+  reset();
+ });
+ document.querySelectorAll("[data-time]").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("[data-time]").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active");state.duration=+b.dataset.time;reset();
+ });
+ document.querySelectorAll("[data-words]").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("[data-words]").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active");state.wordCount=+b.dataset.words;reset();
+ });
+ $("customText").addEventListener("input",()=>{if(state.mode==="custom")reset()});
+ $("restart").onclick=reset;
+ $("pause").onclick=togglePause;
+ $("resultsBtn").onclick=()=>state.finished?showResults():toast("Finish a session to view analytics.");
+ $("closeResults").onclick=()=>$("overlay").classList.remove("show");
+ $("soundBtn").onclick=()=>{state.sound=!state.sound;$("soundBtn").textContent=state.sound?"🔊":"🔇"};
+ $("focusBtn").onclick=toggleFocus;
+ $("themeBtn").onclick=toggleTheme;
+ $("typingInput").addEventListener("input",handleInput);
+ $("typingInput").addEventListener("keydown",handleKeydown);
+ $("textBox").onclick=()=>{if(!state.finished&&!state.paused)$("typingInput").focus()};
+ window.addEventListener("keydown",globalKeys);
+}
+
+function globalKeys(e){
+ if((e.ctrlKey||e.metaKey)&&e.shiftKey&&e.key.toLowerCase()==="f"){
+  e.preventDefault();toggleFocus();return;
+ }
+ if(e.key==="Tab"&&e.target!==$("typingInput")){
+  if(e.shiftKey)return;
+  e.preventDefault();
+ }
+ if(e.key==="Escape"){reset();return}
+ if(e.code==="Space"&&e.target!==$("typingInput")&&!state.finished){
+  e.preventDefault();togglePause();
+ }
+}
+
+function toggleFocus(){
+ state.focus=!state.focus;$("textBox").classList.toggle("focus",state.focus);
+ $("focusBtn").textContent=state.focus?"◉":"◎";
+}
+
+function toggleTheme(){
+ const light=document.body.dataset.light==="1";
+ if(!light){
+  document.body.dataset.light="1";
+  document.body.style.setProperty("--bg","#eef0f6");
+  document.body.style.setProperty("--panel","#ffffff");
+  document.body.style.setProperty("--panel2","#f1f2f7");
+  document.body.style.setProperty("--text","#171922");
+  document.body.style.setProperty("--muted","#657083");
+  document.body.style.setProperty("--line","rgba(20,25,40,.10)");
+  document.querySelectorAll(".textBox").forEach(x=>x.style.background="#f7f8fb");
+  $("themeBtn").textContent="☀";
+ }else{
+  document.body.dataset.light="0";
+  document.body.style.cssText="";
+  $("themeBtn").textContent="☾";
+ }
+}
+
+function reset(){
+ clearInterval(state.interval);
+ state.text=generateText();
+ state.started=false;state.finished=false;state.paused=false;state.elapsed=0;
+ state.typed="";state.errors=0;state.streak=0;state.maxStreak=0;
+ state.correct=0;state.incorrect=0;state.extra=0;state.missed=0;
+ state.wpmHistory=[];state.accHistory=[];state.keyErrors={};
+ $("typingInput").value="";
+ $("pauseLayer").classList.remove("show");
+ $("pause").textContent="Ⅱ Pause";
+ $("status").textContent="Click the text and start typing";
+ $("modeLabel").innerHTML=modeLabel();
+ renderPrompt();
+ updateStats();
+ clearHeat();
+ $("typingInput").focus();
+}
+
+function modeLabel(){
+ if(state.mode==="time")return `Time Mode <span>${state.duration} seconds</span>`;
+ if(state.mode==="words")return `Word Count Mode <span>${state.wordCount} words</span>`;
+ if(state.mode==="quote")return `Quote Mode <span>Literature</span>`;
+ if(state.mode==="zen")return `Zen Mode <span>Untimed</span>`;
+ return `Custom Text Mode <span>Your words</span>`;
+}
+
+function renderPrompt(){
+ let html="";
+ const typed=state.typed;
+ for(let i=0;i<state.text.length;i++){
+  let cls="char";
+  if(i<typed.length)cls+=typed[i]===state.text[i]?" correct":" incorrect";
+  if(i===typed.length)cls+=" cursor";
+  html+=`<span class="${cls}">${escapeHtml(state.text[i])}</span>`;
+ }
+ if(typed.length>state.text.length){
+  for(let i=state.text.length;i<typed.length;i++)html+=`<span class="char extra">${escapeHtml(typed[i])}</span>`;
+ }
+ $("prompt").innerHTML=html;
+}
+
+function escapeHtml(c){
+ return c===" "?"&nbsp;":c==="&"?"&amp;":c==="<"?"&lt;":c===">"?"&gt;":c==='"'?"&quot;":c==="\n"?"↵":c;
+}
+
+function handleKeydown(e){
+ if(e.key==="Tab"){e.preventDefault();reset();return}
+ if(e.key===" "&&e.ctrlKey){e.preventDefault();togglePause();return}
+ if(state.finished)return;
+ if(e.key===" "&&state.paused){e.preventDefault();togglePause()}
+}
+
+function start(){
+ if(state.started||state.finished||state.paused)return;
+ state.started=true;state.startTime=performance.now()-state.elapsed*1000;
+ $("status").textContent="Typing…";
+ state.interval=setInterval(tick,100);
+}
+
+function tick(){
+ if(!state.started||state.paused)return;
+ state.elapsed=(performance.now()-state.startTime)/1000;
+ if(state.mode==="time"&&state.elapsed>=state.duration){
+  state.elapsed=state.duration;finish();return;
+ }
+ if(Math.floor(state.elapsed*10)%10===0){
+  state.wpmHistory.push({t:state.elapsed,w:wpm()});
+  state.accHistory.push({t:state.elapsed,a:accuracy()});
+ }
+ updateStats();
+}
+
+function handleInput(e){
+ if(state.finished||state.paused)return;
+ start();
+ let value=e.target.value;
+ if(value.length>state.text.length)value=value.slice(0,state.text.length+40);
+ state.typed=value;
+ calculateLive();
+ renderPrompt();
+ updateStats();
+ if(state.mode!=="time"&&state.typed.length>=state.text.length)finish();
+}
+
+function calculateLive(){
+ state.correct=0;state.incorrect=0;state.extra=Math.max(0,state.typed.length-state.text.length);
+ state.streak=0;
+ for(let i=0;i<Math.min(state.typed.length,state.text.length);i++){
+  if(state.typed[i]===state.text[i]){
+   state.correct++;state.streak++;state.maxStreak=Math.max(state.maxStreak,state.streak);
+  }else{
+   state.incorrect++;state.streak=0;
+   let k=state.typed[i].toLowerCase();
+   if(/[a-z0-9]/.test(k))state.keyErrors[k]=(state.keyErrors[k]||0)+1;
+  }
+ }
+ state.errors=state.incorrect+state.extra;
+ updateKeyboard();
+}
+
+function accuracy(){
+ const attempted=state.typed.length;
+ return attempted?Math.max(0,state.correct/attempted*100):100;
+}
+
+function wpm(){
+ const mins=Math.max(state.elapsed/60,.001);
+ return Math.max(0,Math.round((state.correct/5)/mins));
+}
+
+function rawWpm(){
+ const mins=Math.max(state.elapsed/60,.001);
+ return Math.max(0,Math.round((state.typed.length/5)/mins));
+}
+
+function cpm(){
+ const mins=Math.max(state.elapsed/60,.001);
+ return Math.max(0,Math.round(state.correct/mins));
+}
+
+function completion(){
+ if(!state.text.length)return 0;
+ return Math.min(100,Math.round(state.typed.length/state.text.length*100));
+}
+
+function updateStats(){
+ let remain=state.mode==="time"?Math.max(0,Math.ceil(state.duration-state.elapsed))+"s":
+  state.mode==="words"?Math.max(0,state.wordCount-state.typed.trim().split(/\s+/).filter(Boolean).length)+"w":
+  Math.max(0,state.text.length-state.typed.length)+"c";
+ $("wpm").textContent=wpm();
+ $("raw").textContent=rawWpm();
+ $("accuracy").textContent=accuracy().toFixed(0)+"%";
+ $("cpm").textContent=cpm();
+ $("time").textContent=state.mode==="time"?Math.max(0,Math.ceil(state.duration-state.elapsed))+"s":formatTime(state.elapsed);
+ $("mistakes").textContent=state.errors;
+ $("streak").textContent=state.streak;
+ $("completion").textContent=completion()+"%";
+ $("remaining").textContent=remain;
+ $("elapsed").textContent=formatTime(state.elapsed);
+ $("progress").style.width=completion()+"%";
+ if(state.elapsed>2){
+  const rhythm=state.wpmHistory.length>1?consistency():"—";
+  $("rhythmTip").textContent=rhythm==="—"?"Keep going; rhythm is calculated from multiple samples.":`Current rhythm consistency: ${rhythm}%. Aim for smooth, even bursts rather than sudden speed spikes.`;
+ }
+}
+
+function formatTime(s){
+ s=Math.max(0,Math.floor(s));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");
+}
+
+function updateKeyboard(){
+ document.querySelectorAll(".keycap").forEach(x=>x.classList.remove("hit","good"));
+ Object.entries(state.keyErrors).forEach(([k,v])=>{
+  const el=$("key-"+k);if(el)el.classList.add("hit");
+ });
+ if(state.typed){
+  const k=state.typed[state.typed.length-1]?.toLowerCase();
+  const el=$("key-"+k);
+  if(el)el.classList.add(state.typed[state.typed.length-1]===state.text[state.typed.length-1]?"good":"hit");
+ }
+}
+
+function togglePause(){
+ if(state.finished)return;
+ if(!state.started){toast("Start typing before pausing.");return}
+ state.paused=!state.paused;
+ $("pauseLayer").classList.toggle("show",state.paused);
+ $("pause").textContent=state.paused?"▶ Resume":"Ⅱ Pause";
+ if(!state.paused){
+  state.startTime=performance.now()-state.elapsed*1000;
+  $("typingInput").focus();
+ }else $("status").textContent="Paused";
+}
+
+function finish(){
+ if(state.finished)return;
+ state.finished=true;state.started=false;clearInterval(state.interval);
+ calculateLive();
+ if(state.typed.length<state.text.length)state.missed=state.text.length-state.typed.length;
+ $("status").textContent="Session complete";
+ $("typingInput").blur();
+ saveSession();
+ updateStats();
+ setTimeout(showResults,250);
+ playFinish();
+}
+
+function consistency(){
+ if(state.wpmHistory.length<2)return 100;
+ const values=state.wpmHistory.map(x=>x.w).filter(x=>x>0);
+ if(values.length<2)return 100;
+ const avg=values.reduce((a,b)=>a+b,0)/values.length;
+ const variance=values.reduce((a,b)=>a+(b-avg)**2,0)/values.length;
+ const sd=Math.sqrt(variance);
+ return Math.max(0,Math.min(100,Math.round(100-(sd/Math.max(avg,1))*100)));
+}
+
+function saveSession(){
+ const session={
+  date:new Date().toLocaleString(),wpm:wpm(),raw:rawWpm(),accuracy:Math.round(accuracy()),
+  consistency:consistency(),duration:Math.round(state.elapsed),correct:state.correct,
+  incorrect:state.incorrect,extra:state.extra,missed:state.missed,errors:state.errors
+ };
+ state.sessionHistory.unshift(session);
+ state.sessionHistory=state.sessionHistory.slice(0,12);
+ localStorage.setItem("typingStudioHistory",JSON.stringify(state.sessionHistory));
+}
+
+function showResults(){
+ if(!state.finished){toast("Finish the session first.");return}
+ $("overlay").classList.add("show");
+ const c=consistency();
+ $("rWpm").textContent=wpm();
+ $("rRaw").textContent=rawWpm();
+ $("rAcc").textContent=accuracy().toFixed(1)+"%";
+ $("rConsistency").textContent=c+"%";
+ $("rCompletion").textContent=completion()+"%";
+ $("rCorrect").textContent=state.correct;
+ $("rIncorrect").textContent=state.incorrect;
+ $("rDuration").textContent=formatTime(state.elapsed);
+ $("resultSubtitle").textContent=`Creative writing · ${modeLabel().replace(/<[^>]*>/g," ")}`;
+ $("rhythmResult").textContent=
+  c>=90?"Excellent rhythm. Your speed appears controlled and consistent.":
+  c>=75?"Good rhythm. A little more even pacing could make your speed more reliable.":
+  "Your rhythm varies noticeably. Try slowing slightly and maintaining a steady cadence.";
+ renderHeatmap();
+ renderCharts();
+ renderSummary(c);
+ renderHistory();
+}
+
+function renderHeatmap(){
+ const alphabet="abcdefghijklmnopqrstuvwxyz".split("");
+ $("heatmap").innerHTML=alphabet.map(k=>{
+  const n=state.keyErrors[k]||0;
+  const alpha=Math.min(.75,n*.18);
+  return `<div style="background:rgba(255,107,122,${alpha})">${k.toUpperCase()}</div>`;
+ }).join("");
+}
+
+function renderCharts(){
+ drawChart("wpmChart",state.wpmHistory.map(x=>x.w),Math.max(10,wpm()+10),"WPM");
+ drawChart("accChart",state.accHistory.map(x=>x.a),100,"%");
+}
+
+function drawChart(id,values,maxY,label){
+ const c=$(id),ctx=c.getContext("2d");
+ const dpr=devicePixelRatio||1,w=c.clientWidth,h=170;
+ c.width=w*dpr;c.height=h*dpr;ctx.scale(dpr,dpr);
+ ctx.clearRect(0,0,w,h);
+ ctx.strokeStyle="rgba(255,255,255,.08)";ctx.lineWidth=1;
+ for(let i=1;i<5;i++){let y=i*h/5;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke()}
+ if(!values.length)return;
+ ctx.beginPath();
+ values.forEach((v,i)=>{
+  const x=values.length===1?w/2:i/(values.length-1)*w;
+  const y=h-10-(Math.min(v,maxY)/maxY)*(h-25);
+  i?ctx.lineTo(x,y):ctx.moveTo(x,y);
+ });
+ ctx.strokeStyle="#b98cff";ctx.lineWidth=3;ctx.stroke();
+ ctx.fillStyle="#8f98aa";ctx.font="10px sans-serif";ctx.fillText(label,8,14);
+}
+
+function renderSummary(c){
+ const strength=
+  accuracy()>=96?"Exceptional accuracy; your control is the clearest strength.":
+  wpm()>=55?"Strong speed while maintaining usable accuracy.":
+  c>=85?"Consistent rhythm is currently your strongest skill.":
+  "You are building a reliable base; controlled practice will compound quickly.";
+ const weak=
+  accuracy()<94?"Reduce corrections and focus on precise keystrokes.":
+  c<75?"Your pace changes noticeably. Practice at a comfortable, repeatable speed.":
+  "Your main opportunity is converting accuracy into slightly higher speed.";
+ const errors=Object.entries(state.keyErrors).sort((a,b)=>b[1]-a[1]).slice(0,3).map(x=>x[0].toUpperCase()).join(", ");
+ const suggestion=errors?
+  `Spend a few minutes on words containing ${errors}. Keep accuracy above 95% before increasing speed.`:
+  "Repeat short passages while keeping your hands relaxed and your rhythm even.";
+ $("strengths").textContent=strength;
+ $("weaknesses").textContent=weak;
+ $("suggestion").textContent=suggestion;
+ const badges=[];
+ if(wpm()>=40)badges.push("⚡ Quick Fingers");
+ if(accuracy()>=98)badges.push("🎯 Precision");
+ if(c>=90)badges.push("🌊 Smooth Rhythm");
+ if(state.maxStreak>=40)badges.push("🔥 Long Streak");
+ if(completion()>=100)badges.push("🏁 Finisher");
+ $("badges").innerHTML=(badges.length?badges:["🌱 Practice Started"]).map(x=>`<span class="badge">${x}</span>`).join("");
+}
+
+function renderHistory(){
+ const list=$("historyList");
+ if(!state.sessionHistory.length){list.innerHTML='<div class="tip">No previous sessions yet.</div>';return}
+ list.innerHTML=`
+ <div class="historyRow"><strong>Date</strong><strong>WPM</strong><strong>Accuracy</strong><strong>Consistency</strong><strong>Duration</strong></div>
+ ${state.sessionHistory.map(x=>`<div class="historyRow"><span>${x.date}</span><strong>${x.wpm}</strong><span>${x.accuracy}%</span><span>${x.consistency}%</span><span>${formatTime(x.duration)}</span></div>`).join("")}`;
+}
+
+function clearHeat(){document.querySelectorAll(".keycap").forEach(x=>x.classList.remove("hit","good"))}
+
+function toast(msg){
+ const t=$("toast");t.textContent=msg;t.classList.add("show");
+ clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>t.classList.remove("show"),2200);
+}
+
+function playFinish(){
+ if(!state.sound)return;
+ try{
+  const ctx=new (window.AudioContext||window.webkitAudioContext)();
+  [523,659,784].forEach((freq,i)=>{
+   const o=ctx.createOscillator(),g=ctx.createGain();
+   o.frequency.value=freq;o.type="sine";g.gain.value=.035;
+   o.connect(g);g.connect(ctx.destination);o.start(ctx.currentTime+i*.09);o.stop(ctx.currentTime+i*.09+.12);
+  });
+ }catch(e){}
+}
+
+setup();
+</script>
+</body>
+</html>
