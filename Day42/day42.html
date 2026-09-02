@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Personal Financial Command Center</title>
+<style>
+:root{--bg:#07110d;--card:#0d1b15;--card2:#13251d;--line:#264338;--txt:#effff7;--muted:#9db5aa;--green:#62e6a4;--blue:#6cb9ff;--yellow:#ffd166;--red:#ff7280}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 10% 0,#174532,transparent 32%),radial-gradient(circle at 90% 10%,#153653,transparent 30%),var(--bg);color:var(--txt);font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}.app{max-width:1250px;margin:auto;padding:18px}.nav{display:flex;align-items:center;justify-content:space-between;padding:12px 15px;background:#0c1813ee;border:1px solid var(--line);border-radius:18px;backdrop-filter:blur(12px);position:sticky;top:10px;z-index:4}.brand{display:flex;gap:10px;align-items:center}.logo{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,var(--green),var(--blue));color:#03120b;font-weight:900;font-size:22px}.brand small{display:block;color:var(--muted)}button{border:1px solid var(--line);background:var(--card2);color:var(--txt);padding:9px 13px;border-radius:10px;cursor:pointer}.primary{border:0;background:linear-gradient(135deg,#45d98d,#418fff)}.hero,.section,.metric{background:#0d1b15e8;border:1px solid var(--line);border-radius:20px}.hero{padding:28px;margin:18px 0}.eyebrow{color:var(--green);font-size:11px;letter-spacing:.14em;font-weight:800;text-transform:uppercase}.hero h1{font-size:38px;margin:5px 0}.hero p,.muted{color:var(--muted)}.chips{display:flex;gap:8px;flex-wrap:wrap}.chip{padding:6px 10px;background:var(--card2);border:1px solid var(--line);border-radius:99px}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:11px}.metric{padding:17px}.metric b{font-size:27px;display:block;margin-top:4px}.layout{display:grid;grid-template-columns:1.45fr .75fr;gap:17px;margin-top:17px}.section{padding:20px;margin-bottom:17px}.section h2{margin:0 0 12px}.form{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.field label{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}.field input{width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);background:#08120e;color:var(--txt)}.row{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}.bar{height:10px;background:#1a2d25;border-radius:99px;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--blue));transition:width .5s}.goal{padding:13px;background:#102019;border:1px solid var(--line);border-radius:13px;margin:9px 0}.goaltop{display:flex;justify-content:space-between}.insight{border-left:3px solid var(--green);padding:10px 13px;background:#09140f;border-radius:8px;margin:9px 0}.score{width:145px;height:145px;margin:8px auto 14px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--green) calc(var(--s)*1%),#1c3028 0);position:relative}.score:after{content:"";position:absolute;width:112px;height:112px;border-radius:50%;background:var(--card)}.score strong{z-index:1;font-size:30px}.check{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line)}.check input{accent-color:var(--green);transform:scale(1.2)}.hidden{display:none}.toast{position:fixed;bottom:18px;right:18px;background:#173025;border:1px solid var(--line);padding:11px 15px;border-radius:12px;opacity:0;transform:translateY(10px);transition:.25s}.toast.show{opacity:1;transform:none}@media(max-width:900px){.metrics{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}}@media(max-width:600px){.app{padding:10px}.nav{position:relative;top:0}.hero h1{font-size:29px}.metrics,.form{grid-template-columns:1fr}}@media print{body{background:#fff;color:#111}.nav button{display:none}.hero,.section,.metric{background:#fff;border-color:#aaa}.muted{color:#333}}
+</style>
+</head>
+<body>
+<div class="app">
+<nav class="nav"><div class="brand"><div class="logo">₹</div><div><b>Personal Financial Command Center</b><small>Student • Scholarship • Beginner</small></div></div><div><button onclick="toggleTheme()">☼ Theme</button> <button onclick="print()">Print</button></div></nav>
+
+<section class="hero"><div class="eyebrow">Student money cockpit</div><h1>Make your money easier to understand.</h1><p>A personalized command center for a scholarship-supported student. Enter approximate monthly numbers, set goals, and experiment with small decisions. All data is stored locally in your browser.</p><div class="chips"><span class="chip">🎓 Student</span><span class="chip">🏅 Scholarship</span><span class="chip">🌱 Beginner</span><span class="chip">🔒 Local data</span></div></section>
+
+<div class="metrics">
+<div class="metric"><span class="muted">Monthly inflow</span><b id="inflow">₹0</b></div>
+<div class="metric"><span class="muted">Monthly spending</span><b id="spend">₹0</b></div>
+<div class="metric"><span class="muted">Monthly surplus</span><b id="surplus">₹0</b></div>
+<div class="metric"><span class="muted">Health score</span><b id="health">—</b></div>
+</div>
+
+<div class="layout"><main>
+<section class="section"><h2>💰 Income & Expenses</h2><p class="muted">Use approximate amounts. The dashboard is for planning and learning, not financial advice.</p>
+<div class="form">
+<div class="field"><label>Scholarship / stipend</label><input id="income" type="number" min="0" value="12000"></div>
+<div class="field"><label>Other income</label><input id="other" type="number" min="0" value="2000"></div>
+<div class="field"><label>Food & daily needs</label><input id="food" type="number" min="0" value="4000"></div>
+<div class="field"><label>Travel</label><input id="travel" type="number" min="0" value="1200"></div>
+<div class="field"><label>Education</label><input id="edu" type="number" min="0" value="1500"></div>
+<div class="field"><label>Entertainment</label><input id="fun" type="number" min="0" value="1000"></div>
+</div><div class="row"><button class="primary" onclick="update()">Update dashboard</button><button onclick="resetData()">Reset</button></div></section>
+
+<section class="section"><h2>🎯 Savings Goals</h2><div id="goals"></div>
+<div class="form"><div class="field"><label>Goal name</label><input id="gname" value="New laptop"></div><div class="field"><label>Target ₹</label><input id="gtarget" type="number" value="60000"></div><div class="field"><label>Saved ₹</label><input id="gsaved" type="number" value="12000"></div></div><button class="primary" onclick="addGoal()" style="margin-top:10px">Add goal</button></section>
+
+<section class="section"><h2>📊 Spending Mix</h2><div id="bars"></div></section>
+
+<section class="section"><h2>🧪 What-if Simulator</h2><p class="muted">Explore how a small monthly spending change could affect your savings over time.</p>
+<div class="form"><div class="field"><label>Monthly reduction ₹</label><input id="cut" type="number" value="500" min="0"></div><div class="field"><label>Months</label><input id="months" type="number" value="12" min="1"></div></div>
+<div class="insight"><b id="whatif">₹0 extra saved</b><p id="whattext" class="muted"></p><div class="bar"><i id="whatbar" style="width:0"></i></div></div><button class="primary" onclick="simulate()">Run simulation</button></section>
+
+<section class="section"><h2>🧠 Financial Insights</h2><div id="insights"></div></section>
+</main>
+
+<aside>
+<section class="section"><h2>❤️ Financial Health</h2><div class="score" id="circle" style="--s:0"><strong id="score">0</strong></div><p id="scoretext" class="muted"></p></section>
+<section class="section"><h2>🛡️ Planning Checklist</h2>
+<div class="check">Build a small emergency buffer <input type="checkbox" id="c1"></div>
+<div class="check">Review recurring subscriptions <input type="checkbox" id="c2"></div>
+<div class="check">Separate needs from wants <input type="checkbox" id="c3"></div>
+<div class="check">Learn before investing <input type="checkbox" id="c4"></div>
+</section>
+<section class="section"><h2>📚 Learn Next</h2><p class="muted">Budgeting • Emergency funds • Inflation • Compound interest • Diversification • Risk • Scams • Taxes</p><button onclick="document.getElementById('learn').classList.toggle('hidden')">Show prompts</button><div id="learn" class="hidden"><div class="insight">Explain compound interest with a student example.</div><div class="insight">How is saving different from investing?</div><div class="insight">How can I identify an investment scam?</div></div></section>
+</aside></div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const ids=["income","other","food","travel","edu","fun"];
+let goals=JSON.parse(localStorage.getItem("pfc-goals")||'[{"name":"Emergency buffer","target":15000,"saved":5000},{"name":"New laptop","target":60000,"saved":12000}]');
+const money=n=>"₹"+Math.max(0,Math.round(n)).toLocaleString("en-IN");
+const v=id=>Number(document.getElementById(id).value)||0;
+function save(){localStorage.setItem("pfc-data",JSON.stringify(Object.fromEntries(ids.map(id=>[id,v(id)]))))}
+function update(){
+ let d=JSON.parse(localStorage.getItem("pfc-data")||"{}");ids.forEach(id=>{if(d[id]!=null)document.getElementById(id).value=d[id]});
+ const inc=v("income")+v("other"),needs=v("food")+v("travel"),education=v("edu"),fun=v("fun"),sp=needs+education+fun,sur=inc-sp;
+ inflow.textContent=money(inc);spend.textContent=money(sp);surplus.textContent=money(sur);
+ let s=50;if(inc)s+=Math.min(22,Math.max(-20,sur/inc*35));if(sur>0)s+=8;if(fun>sp*.25)s-=6;if(sp>inc)s-=15;s=Math.max(0,Math.min(100,Math.round(s)));
+ health.textContent=s+"/100";score.textContent=s;circle.style.setProperty("--s",s);
+ scoretext.textContent=s>=75?"A strong starting base. Keep building consistency.":s>=55?"A workable base. Protect your surplus and build a buffer.":"Start small: understand spending first, then create breathing room.";
+const total=Math.max(1,sp);bars.innerHTML=[["Needs",needs],["Education",education],["Discretionary",fun]].map((a,i)=>`<p><b>${a[0]}</b> <span class="muted">${money(a[1])} · ${Math.round(a[1]/total*100)}%</span></p><div class="bar"><i style="width:${a[1]/total*100}%"></i></div>`).join("");
+let x=[];if(sur>0)x.push("You have a monthly surplus of "+money(sur)+". Consider assigning part of it to a goal before discretionary spending.");else x.push("Your spending currently uses most or all of your inflow. Look for one small adjustable category rather than cutting everything.");
+if(fun>sp*.25)x.push("Discretionary spending is a notable share of the total. A gentle limit could create more goal capacity.");if(education>0)x.push("Education spending may support future earning power; judge it by usefulness and outcomes.");x.push("As a beginner, prioritize a buffer and financial literacy before taking investment risk.");
+insights.innerHTML=x.map(t=>`<div class="insight">${t}</div>`).join("");save();renderGoals();
+}
+function renderGoals(){goals.innerHTML=goalsData().map((g,i)=>{let p=Math.min(100,g.saved/g.target*100);return `<div class="goal"><div class="goaltop"><b>${g.name}</b><span>${Math.round(p)}%</span></div><p class="muted">${money(g.saved)} / ${money(g.target)}</p><div class="bar"><i style="width:${p}%"></i></div><button onclick="removeGoal(${i})" style="margin-top:8px">Remove</button></div>`}).join("")}
+function goalsData(){return goals}
+function addGoal(){let name=gname.value.trim(),target=v("gtarget"),saved=v("gsaved");if(!name||target<=0)return toast("Enter a valid goal.");goals.push({name,target,saved});localStorage.setItem("pfc-goals",JSON.stringify(goals));renderGoals();toast("Goal added.")}
+function removeGoal(i){goals.splice(i,1);localStorage.setItem("pfc-goals",JSON.stringify(goals));renderGoals()}
+function simulate(){let extra=v("cut")*v("months");whatif.textContent=money(extra)+" extra saved";whattext.textContent="If the reduction stayed consistent, this would redirect "+money(extra)+" over "+v("months")+" months.";whatbar.style.width=Math.min(100,extra/60000*100)+"%"}
+function resetData(){localStorage.removeItem("pfc-data");[12000,2000,4000,1200,1500,1000].forEach((n,i)=>document.getElementById(ids[i]).value=n);update();toast("Reset complete.")}
+function toggleTheme(){document.documentElement.style.setProperty("--bg",getComputedStyle(document.documentElement).getPropertyValue("--bg").trim()==="#07110d"?"#f1f7f4":"#07110d");toast("Theme toggled.")}
+function toast(t){let e=document.getElementById("toast");e.textContent=t;e.classList.add("show");setTimeout(()=>e.classList.remove("show"),1600)}
+ids.forEach(id=>document.getElementById(id).addEventListener("input",update));
+["c1","c2","c3","c4"].forEach(id=>{let e=document.getElementById(id);e.checked=localStorage.getItem(id)==="1";e.onchange=()=>localStorage.setItem(id,e.checked?"1":"0")});
+update();
+</script>
+</body>
+</html>

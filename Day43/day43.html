@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Workflow Architect</title>
+<style>
+:root{
+  --bg:#07090f;--panel:#0e121c;--panel2:#131927;--text:#eef2ff;--muted:#98a2b8;
+  --line:#232b3d;--accent:#7c5cff;--accent2:#25d0ab;--warn:#ffbd5c;--danger:#ff6b7a;
+  --shadow:0 20px 60px rgba(0,0,0,.35);--radius:18px;
+}
+*{box-sizing:border-box} html{scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(circle at 80% -10%,#25204c 0,transparent 35%),var(--bg);
+color:var(--text);font:14px/1.6 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,textarea{font:inherit} button{cursor:pointer}
+.app{display:grid;grid-template-columns:270px 1fr;min-height:100vh}
+.sidebar{position:sticky;top:0;height:100vh;border-right:1px solid var(--line);background:rgba(7,9,15,.88);backdrop-filter:blur(18px);padding:22px 16px;display:flex;flex-direction:column}
+.brand{display:flex;gap:11px;align-items:center;margin:4px 8px 25px;font-weight:800;font-size:16px}
+.logo{width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,var(--accent),#b89cff);display:grid;place-items:center;box-shadow:0 8px 30px #7c5cff33}
+.logo:after{content:"✦";font-size:18px}
+.nav{display:grid;gap:5px}.nav button{border:0;background:transparent;color:var(--muted);text-align:left;padding:11px 12px;border-radius:10px}
+.nav button:hover,.nav button.active{background:var(--panel2);color:var(--text)}
+.side-foot{margin-top:auto;display:grid;gap:8px}.mini{font-size:12px;color:var(--muted)}
+.main{min-width:0}.topbar{height:70px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:10;background:#07090fd9;backdrop-filter:blur(18px)}
+.actions{display:flex;gap:8px}.btn{border:1px solid var(--line);background:var(--panel);color:var(--text);padding:9px 13px;border-radius:10px}.btn.primary{background:var(--accent);border-color:var(--accent)}.btn:hover{transform:translateY(-1px)}
+.container{max-width:1240px;margin:auto;padding:42px 28px 70px}
+.hero{display:grid;grid-template-columns:1.5fr .8fr;gap:24px;align-items:stretch;margin-bottom:28px}
+.hero-card,.card{background:linear-gradient(180deg,#101522,#0c1019);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.hero-card{padding:34px}.eyebrow{color:#b7a8ff;font-weight:700;text-transform:uppercase;letter-spacing:.12em;font-size:11px}
+h1{font-size:clamp(34px,5vw,58px);line-height:1.02;letter-spacing:-.045em;margin:10px 0 14px}
+h2{font-size:25px;letter-spacing:-.025em;margin:0 0 10px} h3{margin:0 0 8px;font-size:16px}
+.lead{color:var(--muted);font-size:16px;max-width:750px}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}.badge{padding:6px 9px;border:1px solid var(--line);background:#0b0f18;border-radius:999px;color:#cbd3e8;font-size:12px}
+.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:18px}.metric{padding:15px;background:#0b0f18;border:1px solid var(--line);border-radius:13px}.metric b{display:block;font-size:24px}.metric span{color:var(--muted);font-size:11px}
+.section{margin:30px 0}.section-head{display:flex;justify-content:space-between;gap:15px;align-items:end;margin-bottom:14px}.muted{color:var(--muted)}
+.progress{height:7px;background:#1b2231;border-radius:99px;overflow:hidden}.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0;transition:.4s}
+.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.node{position:relative;padding:17px;background:var(--panel);border:1px solid var(--line);border-radius:14px;min-height:125px;transition:.2s}.node:hover{border-color:#5544a4;transform:translateY(-2px)}.node .num{color:#a995ff;font-weight:800;font-size:12px}.node p{color:var(--muted);font-size:12px;margin:7px 0 0}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}.card{padding:22px}.card.full{grid-column:1/-1}
+.list{margin:0;padding-left:19px}.list li{margin:7px 0;color:#cbd2e4}.list li::marker{color:#8e79ff}
+.tool{display:grid;grid-template-columns:auto 1fr auto;gap:13px;align-items:start;padding:14px 0;border-bottom:1px solid var(--line)}.tool:last-child{border-bottom:0}.tool-icon{width:34px;height:34px;border-radius:10px;background:#1a2030;display:grid;place-items:center;font-weight:800;color:#c2b5ff}.tool strong{display:block}.tool small{color:var(--muted)}.tool .tag{font-size:10px;border:1px solid #2d3650;padding:3px 6px;border-radius:99px;color:#b8c1d7}
+.tabs{display:flex;gap:6px;overflow:auto;margin-bottom:15px}.tab{white-space:nowrap;padding:8px 11px;border:1px solid var(--line);background:#0b0f18;color:var(--muted);border-radius:9px}.tab.active{background:#1a1630;color:#d9d2ff;border-color:#4a3b86}
+.stage{display:none}.stage.active{display:block;animation:fade .25s ease}@keyframes fade{from{opacity:.2;transform:translateY(4px)}to{opacity:1;transform:none}}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}.sub{padding:15px;border:1px solid var(--line);border-radius:13px;background:#0b0f18}.sub h4{margin:0 0 7px}.sub p{margin:0;color:var(--muted)}
+.decision{display:grid;grid-template-columns:1fr 1fr;gap:10px}.choice{padding:16px;border:1px solid var(--line);border-radius:13px;background:#0b0f18}.choice b{color:#cfc5ff}
+.checks{display:grid;gap:9px}.check{display:flex;gap:10px;align-items:flex-start;padding:10px;border-radius:9px}.check:hover{background:#0b0f18}.check input{accent-color:var(--accent);margin-top:5px}.check.done{opacity:.55;text-decoration:line-through}
+textarea,input[type=text]{width:100%;border:1px solid var(--line);background:#090d15;color:var(--text);border-radius:10px;padding:10px;outline:none}.notes{min-height:150px;resize:vertical}.search{max-width:260px}
+.footer-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.callout{border-left:3px solid var(--accent);padding:12px 15px;background:#111024;border-radius:0 10px 10px 0}
+.toast{position:fixed;right:22px;bottom:22px;background:#171d2a;border:1px solid var(--line);padding:11px 15px;border-radius:10px;opacity:0;transform:translateY(10px);pointer-events:none;transition:.25s}.toast.show{opacity:1;transform:none}
+.light{--bg:#f5f7fb;--panel:#fff;--panel2:#eef1f8;--text:#151927;--muted:#657087;--line:#dfe4ee;--shadow:0 16px 45px rgba(33,44,70,.1)}.light .topbar,.light .sidebar{background:#f5f7fbe8}.light .hero-card,.light .card{background:#fff}.light .metric,.light .sub,.light .choice,.light .node,.light .badge,.light .tool .tag,.light .tab{background:#f8f9fc}
+@media(max-width:900px){.app{grid-template-columns:1fr}.sidebar{position:fixed;left:-280px;z-index:30;width:270px;transition:.25s}.sidebar.open{left:0}.hero{grid-template-columns:1fr}.flow{grid-template-columns:repeat(2,1fr)}.mobile{display:block!important}}
+@media(max-width:600px){.topbar{padding:0 14px}.container{padding:25px 14px}.hero-card{padding:23px}.grid,.two,.footer-grid{grid-template-columns:1fr}.flow{grid-template-columns:1fr}.actions .hide-sm{display:none}.search{max-width:150px}}
+.mobile{display:none}
+@media print{.sidebar,.topbar,.actions,.tabs,.notes-input,.toast{display:none!important}.app{display:block}.container{max-width:none;padding:0}.card,.hero-card{box-shadow:none;break-inside:avoid}.stage{display:block!important}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar" id="sidebar">
+  <div class="brand"><div class="logo"></div> AI Workflow Architect</div>
+  <div class="nav">
+    <button class="active" data-target="overview">⌂ Overview</button>
+    <button data-target="workflow">◈ Workflow</button>
+    <button data-target="stages">▦ Stages</button>
+    <button data-target="stack">⚡ AI Stack</button>
+    <button data-target="resources">◎ Resources</button>
+    <button data-target="notes">✎ Notes</button>
+  </div>
+  <div class="side-foot"><div class="progress"><i id="sideProgress"></i></div><div class="mini"><span id="progressText">0%</span> workflow complete</div></div>
+</aside>
+
+<main class="main">
+<header class="topbar">
+  <button class="btn mobile" onclick="toggleSide()">☰</button>
+  <div class="muted">AI-Assisted React Web App Development</div>
+  <div class="actions"><button class="btn hide-sm" onclick="window.print()">Print</button><button class="btn" id="themeBtn" onclick="toggleTheme()">☼</button></div>
+</header>
+
+<div class="container">
+<section id="overview" class="hero">
+  <div class="hero-card">
+    <div class="eyebrow">End-to-end workflow blueprint</div>
+    <h1>Build better React apps with AI.</h1>
+    <p class="lead">A practical system that moves from product idea to architecture, UI, implementation, testing, deployment and continuous improvement—while keeping engineering judgment in the loop.</p>
+    <div class="badges"><span class="badge">React</span><span class="badge">AI-assisted</span><span class="badge">Production-ready</span><span class="badge">Full lifecycle</span></div>
+  </div>
+  <div class="hero-card metrics">
+    <div class="metric"><b>10</b><span>workflow stages</span></div><div class="metric"><b>40–70h</b><span>typical project range</span></div>
+    <div class="metric"><b>3–5</b><span>core AI roles</span></div><div class="metric"><b id="metricDone">0%</b><span>your progress</span></div>
+  </div>
+</section>
+
+<section id="workflow" class="section">
+ <div class="section-head"><div><div class="eyebrow">Visual map</div><h2>From idea to shipped product</h2></div><span class="muted">Click a stage to jump in</span></div>
+ <div class="flow" id="flow"></div>
+</section>
+
+<section id="stages" class="section">
+ <div class="section-head"><div><div class="eyebrow">Execution system</div><h2>Stage playbook</h2></div><input class="search" id="search" type="text" placeholder="Filter stages..."></div>
+ <div class="tabs" id="tabs"></div>
+ <div id="stageContent"></div>
+</section>
+
+<section id="stack" class="section">
+ <div class="section-head"><div><div class="eyebrow">Recommended stack</div><h2>AI roles, not random tools</h2></div></div>
+ <div class="grid">
+  <div class="card"><h3>Core AI stack</h3><div id="tools"></div></div>
+  <div class="card"><h3>Tool selection logic</h3><div class="decision">
+    <div class="choice"><b>Need fast UI?</b><p class="muted">Use an AI coding assistant to generate a first pass, then manually refine responsive behavior and accessibility.</p></div>
+    <div class="choice"><b>Need correctness?</b><p class="muted">Give AI tests, constraints, expected inputs/outputs and existing code before asking for a fix.</p></div>
+    <div class="choice"><b>Need research?</b><p class="muted">Ask AI to compare options against explicit criteria instead of asking for “the best” tool.</p></div>
+    <div class="choice"><b>Need deployment?</b><p class="muted">Use AI for configuration and troubleshooting, but verify secrets, domains, builds and logs yourself.</p></div>
+  </div></div>
+ </div>
+</section>
+
+<section id="resources" class="section">
+ <div class="section-head"><div><div class="eyebrow">Keep learning</div><h2>Resources & discovery</h2></div></div>
+ <div class="footer-grid">
+  <div class="card"><h3>Learning Resources</h3><ul class="list"><li>React official documentation and API reference</li><li>MDN Web Docs for browser fundamentals</li><li>TypeScript handbook for typed application design</li><li>Testing Library documentation and practical examples</li><li>Git/GitHub workflows: branching, pull requests and reviews</li></ul></div>
+  <div class="card"><h3>Communities</h3><ul class="list"><li>React community discussions</li><li>GitHub Discussions and project issue trackers</li><li>Stack Overflow for narrowly scoped debugging questions</li><li>Developer Discord/Slack communities for framework-specific help</li></ul></div>
+  <div class="card"><h3>Search Keywords</h3><p class="muted">react production architecture · react testing strategy · component design system · frontend performance · accessibility audit · AI coding workflow · CI/CD React · React error debugging</p></div>
+  <div class="card"><h3>Future Automation Opportunities</h3><ul class="list"><li>Turn issue descriptions into implementation plans.</li><li>Generate regression tests when bugs are closed.</li><li>Summarize pull requests and release notes.</li><li>Run scheduled dependency/security checks.</li><li>Create changelog and documentation drafts from merged work.</li></ul></div>
+ </div>
+</section>
+
+<section id="notes" class="section">
+ <div class="section-head"><div><div class="eyebrow">Personal workspace</div><h2>Notes & bookmarks</h2></div><button class="btn primary" onclick="saveNotes()">Save notes</button></div>
+ <div class="card"><textarea class="notes notes-input" id="notesBox" placeholder="Capture architecture decisions, links, questions, snippets, or things to revisit..."></textarea></div>
+</section>
+
+<section class="section">
+ <div class="card">
+  <div class="eyebrow">Workflow Summary</div>
+  <h2>Plan → Design → Build → Verify → Ship → Improve</h2>
+  <div class="callout">The goal is not “let AI code everything.” The goal is to create a repeatable engineering loop where AI handles high-leverage drafting, exploration and diagnosis while you own requirements, trade-offs, security and final verification.</div>
+  <h3 style="margin-top:20px">Additional AI Prompts</h3>
+  <ul class="list">
+   <li><b>Architect:</b> “Turn these requirements into a React architecture. State assumptions, component boundaries, data flow, risks and trade-offs before proposing code.”</li>
+   <li><b>Implement:</b> “Implement this component with clear props, accessible semantics, responsive behavior and minimal dependencies. Explain only non-obvious decisions.”</li>
+   <li><b>Debug:</b> “Here is the error, reproduction, expected behavior and relevant code. Identify likely root causes, rank them, then propose the smallest safe fix and a regression test.”</li>
+   <li><b>Review:</b> “Review this change as a senior frontend engineer. Check correctness, accessibility, performance, security, maintainability and edge cases. Separate blockers from nice-to-haves.”</li>
+ </ul>
+ </div>
+</section>
+</div>
+</main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const stages=[
+{name:"Discovery",goal:"Turn a vague product idea into a testable problem and clear scope.",time:"2–4h",tasks:["Define user, problem, desired outcome and non-goals.","Write MVP requirements and acceptance criteria.","Identify unknowns, dependencies and technical constraints.","Ask AI to challenge assumptions and surface edge cases."],tools:[["AI assistant","Requirements analyst","Convert rough notes into structured requirements and questions."],["Search/research tools","Evidence finder","Validate unfamiliar APIs, libraries and platform constraints."]],alts:["Notebook/Docs","Issue tracker"],prompt:"Act as a product-minded senior engineer. Convert these rough notes into: problem statement, target user, MVP scope, non-goals, acceptance criteria, assumptions, open questions and technical risks. Do not write code yet.",best:["Keep requirements observable and testable.","Separate must-have from nice-to-have.","Record assumptions instead of hiding them."],mistakes:["Starting implementation before defining the happy path.","Adding features because AI suggested them.","Treating assumptions as facts."],output:"One-page product brief + acceptance criteria",eff:"Use a fixed template so every new project begins with the same decision surface."},
+{name:"Architecture",goal:"Design a maintainable React system before implementation.",time:"3–6h",tasks:["Choose routing, state, data and component boundaries.","Define folder/module structure and API contracts.","Decide where server/client responsibilities live.","Document major trade-offs and failure modes."],tools:[["AI architect","System designer","Generate and critique architecture options against explicit constraints."],["Diagramming AI","Visual mapper","Turn component/data flows into diagrams for review."]],alts:["Architecture decision records","Whiteboard"],prompt:"Given these requirements and constraints, propose two React architectures. Compare complexity, scalability, performance, testing and developer experience. Recommend one and produce a component/data-flow map plus key ADRs.",best:["Prefer boring architecture that fits the current scale.","Define boundaries before writing large components.","Make state ownership explicit."],mistakes:["Overengineering for hypothetical scale.","Putting all state in global stores.","Choosing tools because they are trendy."],output:"Architecture map + ADRs + project structure",eff:"Have AI critique your architecture before code exists; changing a diagram is cheaper than refactoring a codebase."},
+{name:"UX & UI",goal:"Translate requirements into a coherent, accessible interface.",time:"4–10h",tasks:["Map primary user journeys.","Define page hierarchy and component states.","Create responsive layouts and empty/loading/error states.","Check keyboard navigation, contrast and semantics."],tools:[["Design copilot","UI ideation","Explore layouts, copy and component variants quickly."],["AI coding assistant","UI builder","Turn a reviewed design into reusable React components."]],alts:["Figma","Design system docs"],prompt:"Design the UX for this React feature. Start with the user journey, then define screens, states, components, responsive behavior, accessibility requirements and microcopy. Flag anything ambiguous.",best:["Design states, not just happy-path screens.","Use reusable tokens/components.","Test mobile and keyboard flows early."],mistakes:["Only designing the desktop happy path.","Using AI-generated UI without accessibility review.","Duplicating components instead of defining variants."],output:"Screen map + component spec + UI implementation plan",eff:"Ask AI to generate state matrices for complex components before coding them."},
+{name:"Implementation",goal:"Build the smallest production-quality slice end to end.",time:"12–30h",tasks:["Set up project conventions and environment variables.","Implement core data flow and reusable components.","Integrate APIs with loading/error handling.","Commit small, reviewable changes."],tools:[["AI coding assistant","Pair programmer","Generate boilerplate, refactors and focused implementations."],["AI chat","Code explainer","Explain unfamiliar code and propose alternatives."]],alts:["IDE autocomplete","Manual implementation"],prompt:"Implement this feature in small steps. First list files to change and invariants. Then provide the minimal patch. Preserve existing conventions, avoid unnecessary dependencies, handle loading/error/empty states, and include tests.",best:["Give AI the relevant code and constraints.","Request small diffs rather than whole applications.","Review generated code line by line."],mistakes:["Pasting huge codebases without context.","Accepting code you cannot explain.","Letting generated abstractions spread too early."],output:"Working feature + tests + clean commits",eff:"Use a loop: specify → generate → inspect → run → test → refine."},
+{name:"Testing",goal:"Prove the application behaves correctly under normal and adverse conditions.",time:"4–10h",tasks:["Convert acceptance criteria into test cases.","Cover unit/component and critical integration flows.","Add regression tests for fixed bugs.","Test responsive and accessibility-critical interactions."],tools:[["AI test writer","Coverage planner","Derive test cases and edge conditions from requirements."],["Test runner","Verification","Run automated checks and expose regressions."]],alts:["Manual QA matrix","Browser devtools"],prompt:"Turn these acceptance criteria into a prioritized test plan. Include happy paths, boundaries, invalid inputs, async failures, empty states, permissions and regression cases. Then write focused tests using the project's existing test conventions.",best:["Test behavior, not implementation details.","Prioritize user-critical paths.","Make every bug fix leave a regression test."],mistakes:["Only testing successful responses.","Snapshotting everything without assertions.","Skipping manual exploratory testing."],output:"Automated test suite + QA matrix",eff:"Ask AI to find missing cases after you have written your first test suite."},
+{name:"Debugging",goal:"Resolve defects systematically instead of guessing.",time:"2–8h",tasks:["Capture exact reproduction steps and expected behavior.","Collect console/network/build/test evidence.","Rank likely root causes.","Apply smallest safe fix and add regression coverage."],tools:[["AI debugger","Root-cause analyst","Reason from symptoms, logs, code and reproduction steps."],["Browser/IDE tools","Evidence source","Supply stack traces, network data and runtime state."]],alts:["Pair debugging","Issue tracker"],prompt:"Debug this issue as a senior engineer. Evidence: [error/logs/repro]. First identify 3–5 likely causes and the evidence for each. Then recommend the smallest safe fix, explain why it works, and propose a regression test.",best:["Provide evidence before theories.","Change one variable at a time.","Verify the fix from the original reproduction."],mistakes:["Blindly applying the first AI suggestion.","Ignoring environment differences.","Fixing symptoms instead of root causes."],output:"Verified fix + regression test + root-cause note",eff:"Keep a reusable debugging prompt with slots for reproduction, evidence and constraints."},
+{name:"Performance & Security",goal:"Remove high-impact bottlenecks and avoid preventable security mistakes.",time:"3–8h",tasks:["Check bundle size, rendering and network waterfalls.","Review caching, images and expensive computations.","Audit secrets, auth, input handling and dependencies.","Run production-like checks before launch."],tools:[["AI reviewer","Risk scanner","Prioritize likely performance/security issues from code and configs."],["Browser performance tools","Profiler","Measure actual runtime behavior before optimizing."]],alts:["Lighthouse","Dependency scanners"],prompt:"Review this React application for performance and security risks. Rank findings by impact and likelihood. Distinguish measured problems from hypotheses, and give the smallest practical remediation for each.",best:["Measure before optimizing.","Never put secrets in client code.","Treat AI security suggestions as hypotheses requiring verification."],mistakes:["Optimizing without measurement.","Trusting client-side validation alone.","Committing credentials or tokens."],output:"Prioritized performance/security action list",eff:"Run the same lightweight audit before every production release."},
+{name:"Deployment",goal:"Ship reliably with repeatable builds, configuration and rollback paths.",time:"2–5h",tasks:["Configure build and environment variables.","Set up CI checks and deployment target.","Verify domain, HTTPS, redirects and production logs.","Document rollback and post-deploy checks."],tools:[["AI DevOps assistant","Config helper","Explain build/deployment errors and draft configuration."],["Hosting platform","Release system","Build, deploy, observe and roll back the application."]],alts:["Self-hosted CI/CD","Manual deployment"],prompt:"Given this project structure and deployment target, create a deployment checklist and identify configuration risks. Include environment variables, build command, health checks, logs, rollback and post-deploy verification. Never invent secrets.",best:["Keep deployment reproducible.","Separate development and production configuration.","Test rollback before you need it."],mistakes:["Hardcoding secrets.","Deploying without build checks.","Assuming local success means production success."],output:"Live release + deployment runbook",eff:"Automate repeatable checks so deployment becomes a routine, not an event."},
+{name:"Documentation",goal:"Make the system understandable to its next developer and future self.",time:"1–3h",tasks:["Document setup, architecture and key decisions.","Explain environment variables without exposing secrets.","Add feature usage and troubleshooting notes.","Generate changelog/release notes from verified changes."],tools:[["AI documentation assistant","Technical writer","Draft concise docs from code, ADRs and verified behavior."],["Repository docs","Knowledge base","Keep the source of truth close to the code."]],alts:["Team wiki","Markdown docs"],prompt:"Write concise developer documentation from the verified project details below. Include setup, architecture overview, environment variables, commands, testing, deployment, troubleshooting and known limitations. Do not invent missing facts.",best:["Document decisions, not every line of code.","Keep docs close to the repository.","Review AI-generated docs against actual behavior."],mistakes:["Letting docs drift.","Documenting imaginary features.","Publishing secrets in examples."],output:"README + ADRs + runbook + release notes",eff:"Generate a first draft after each meaningful milestone, then edit for accuracy."},
+{name:"Improve",goal:"Turn shipped work into a feedback loop for the next iteration.",time:"Ongoing",tasks:["Review user feedback, analytics and support issues.","Prioritize improvements by impact and effort.","Turn production bugs into regression cases.","Retrospect on the AI-assisted development process."],tools:[["AI analyst","Pattern finder","Cluster feedback and identify recurring problems or opportunities."],["AI planning assistant","Prioritizer","Convert evidence into ranked experiments and backlog items."]],alts:["Analytics dashboard","Product backlog"],prompt:"Analyze this feedback and usage data. Cluster issues, identify root themes, estimate user impact, and propose a prioritized next-iteration backlog. Separate evidence from inference and suggest what to measure next.",best:["Use evidence to prioritize.","Keep an experiment mindset.","Improve the workflow itself, not just the product."],mistakes:["Chasing every request.","Confusing loud feedback with high impact.","Never reviewing whether AI actually saved time."],output:"Prioritized backlog + experiment plan + workflow retrospective",eff:"Track time saved, defects introduced, review effort and reusable prompts."}
+];
+
+const tools=[
+["AI","Primary coding assistant","Use for planning, implementation, refactoring, debugging and review."],
+["Research","Current technical research","Use when libraries, APIs, standards or platform behavior may have changed."],
+["Git","Version control","Creates small checkpoints that make AI-assisted iteration safer."],
+["Browser DevTools","Runtime evidence","Measure DOM, network, console and performance behavior."],
+["Test Runner","Automated verification","Turns acceptance criteria and regressions into repeatable proof."]
+];
+
+let active=0, checks=JSON.parse(localStorage.getItem("awaChecks")||"{}");
+const $=s=>document.querySelector(s);
+function renderFlow(){ $("#flow").innerHTML=stages.map((s,i)=>`<div class="node" onclick="showStage(${i})"><div class="num">0${i+1}</div><h3>${s.name}</h3><p>${s.goal}</p></div>`).join("")}
+function renderTabs(filter=""){
+ const ids=stages.map((s,i)=>({s,i})).filter(x=>(x.s.name+" "+x.s.goal).toLowerCase().includes(filter.toLowerCase()));
+ $("#tabs").innerHTML=ids.map(x=>`<button class="tab ${x.i===active?"active":""}" onclick="showStage(${x.i})">${String(x.i+1).padStart(2,"0")} ${x.s.name}</button>`).join("");
+}
+function showStage(i){
+ active=i; renderTabs($("#search")?.value||"");
+ const s=stages[i], stageChecks=s.tasks.map((t,j)=>`<label class="check ${checks[i+"-"+j]?"done":""}"><input type="checkbox" ${checks[i+"-"+j]?"checked":""} onchange="toggleCheck(${i},${j},this.checked)"> <span>${t}</span></label>`).join("");
+ $("#stageContent").innerHTML=`<div class="stage active">
+  <div class="grid">
+   <div class="card full"><div class="eyebrow">Stage ${String(i+1).padStart(2,"0")} · ${s.time}</div><h2>${s.name}: ${s.goal}</h2><p class="muted"><b>Expected output:</b> ${s.output}</p></div>
+   <div class="card"><h3>Objectives & Tasks</h3><div class="checks">${stageChecks}</div></div>
+   <div class="card"><h3>Best AI tools</h3>${s.tools.map(t=>`<div class="tool"><div class="tool-icon">✦</div><div><strong>${t[0]}</strong><small>${t[1]} · ${t[2]}</small></div><span class="tag">Recommended</span></div>`).join("")}<p class="muted"><b>Alternatives:</b> ${s.alts.join(" · ")}</p></div>
+   <div class="card"><h3>Prompt example</h3><div class="callout">${s.prompt}</div><h3 style="margin-top:18px">Best practices</h3><ul class="list">${s.best.map(x=>`<li>${x}</li>`).join("")}</ul></div>
+   <div class="card"><h3>Common mistakes</h3><ul class="list">${s.mistakes.map(x=>`<li>${x}</li>`).join("")}</ul><h3 style="margin-top:18px">Efficiency tip</h3><p class="muted">${s.eff}</p></div>
+  </div>
+ </div>`;
+}
+function toggleCheck(i,j,v){checks[i+"-"+j]=v;localStorage.setItem("awaChecks",JSON.stringify(checks));updateProgress();showStage(i)}
+function updateProgress(){
+ let total=stages.reduce((a,s)=>a+s.tasks.length,0), done=Object.values(checks).filter(Boolean).length;
+ let pct=Math.round(done/total*100); $("#sideProgress").style.width=pct+"%";$("#progressText").textContent=pct+"%";$("#metricDone").textContent=pct+"%";
+}
+function toggleTheme(){document.body.classList.toggle("light");localStorage.setItem("awaTheme",document.body.classList.contains("light")?"light":"dark")}
+function toggleSide(){$("#sidebar").classList.toggle("open")}
+function toast(t){let x=$("#toast");x.textContent=t;x.classList.add("show");setTimeout(()=>x.classList.remove("show"),1800)}
+function saveNotes(){localStorage.setItem("awaNotes",$("#notesBox").value);toast("Notes saved locally")}
+function nav(){
+ document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>{document.getElementById(b.dataset.target).scrollIntoView({behavior:"smooth"});document.querySelectorAll(".nav button").forEach(x=>x.classList.remove("active"));b.classList.add("active");$("#sidebar").classList.remove("open")});
+}
+$("#search").addEventListener("input",e=>renderTabs(e.target.value));
+$("#tools").innerHTML=tools.map(t=>`<div class="tool"><div class="tool-icon">${t[0][0]}</div><div><strong>${t[0]}</strong><small>${t[1]} · ${t[2]}</small></div></div>`).join("");
+renderFlow();renderTabs();showStage(0);updateProgress();nav();
+if(localStorage.getItem("awaTheme")==="light")document.body.classList.add("light");
+$("#notesBox").value=localStorage.getItem("awaNotes")||"";
+</script>
+</body>
+</html>

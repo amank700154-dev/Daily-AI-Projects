@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Interactive Learning Studio — Data Structures</title>
+<style>
+:root{--bg:#070b12;--card:#101825;--card2:#151f2e;--text:#eef4ff;--muted:#9aa8bb;--line:#273449;--violet:#8d7cff;--cyan:#39d9c5;--green:#47d98a;--red:#ff7080}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 8% 0,#30245d 0,transparent 30%),radial-gradient(circle at 92% 10%,#064c49 0,transparent 27%),var(--bg);color:var(--text);font:15px/1.65 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button{font:inherit}.wrap{max-width:1180px;margin:auto;padding:18px}.top{position:sticky;top:10px;z-index:10;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:12px 16px;margin-bottom:20px;background:#0d141ee8;border:1px solid var(--line);border-radius:18px;backdrop-filter:blur(15px)}
+.brand{display:flex;gap:11px;align-items:center}.logo{width:44px;height:44px;display:grid;place-items:center;border-radius:13px;background:linear-gradient(135deg,var(--violet),#4d8fff);font-weight:900}.brand b{display:block}.brand small{color:var(--muted)}
+.prog{display:flex;align-items:center;gap:8px;min-width:260px}.track{height:8px;background:#202a39;border-radius:99px;overflow:hidden;flex:1}.fill{height:100%;width:0;background:linear-gradient(90deg,var(--violet),var(--cyan));transition:.5s}
+section{background:#101825e8;border:1px solid var(--line);border-radius:23px;margin:0 0 17px;box-shadow:0 20px 65px #0007}.hero{padding:34px}.eyebrow{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--cyan)}h1,h2,h3,h4{line-height:1.2}.hero h1{font-size:43px;margin:8px 0}.hero p{color:var(--muted);max-width:850px}.chips{display:flex;gap:8px;flex-wrap:wrap}.chip{padding:7px 11px;background:#172131;border:1px solid var(--line);border-radius:99px;color:#d5deec}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:20px}.stat{padding:14px;border:1px solid var(--line);border-radius:15px;background:#0c121b}.stat strong{display:block;font-size:20px}.stat span{font-size:12px;color:var(--muted)}
+.module{overflow:hidden;opacity:.5;transition:.35s}.module.unlocked{opacity:1}.head{padding:23px;background:linear-gradient(135deg,#141e2d,#101825);border-bottom:1px solid var(--line)}.head h2{margin:5px 0;font-size:26px}.head p{margin:0;color:var(--muted)}.body{padding:24px}.columns{display:grid;grid-template-columns:1.35fr .65fr;gap:20px}.lesson h3{margin-top:20px}.lesson p{color:#c6d0df}.callout{padding:15px;border-left:3px solid var(--violet);background:#0b111a;border-radius:10px;margin:14px 0}.diagram{padding:18px;text-align:center;background:#090e15;border:1px solid var(--line);border-radius:16px}.nodes{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:8px}.node{padding:9px 13px;background:#182438;border:1px solid #40506a;border-radius:11px}.arrow{color:var(--cyan);font-weight:900}.table{width:100%;border-collapse:collapse;margin:14px 0}.table th,.table td{padding:10px;border:1px solid var(--line);text-align:left}.table th{background:#182131}.exercise{padding:16px;border:1px solid var(--line);background:#0b111a;border-radius:15px}
+.quiz{margin-top:24px;padding:19px;background:#0c121b;border:1px solid var(--line);border-radius:17px}.question{padding:14px 0;border-bottom:1px solid var(--line)}.question:last-of-type{border:0}.options{display:grid;gap:8px;margin-top:8px}.opt{padding:10px 12px;text-align:left;color:#dce5f3;background:#151e2c;border:1px solid var(--line);border-radius:10px;cursor:pointer}.opt:hover{border-color:#596a86}.opt.sel{border-color:var(--violet);background:#211d3c}.opt.good{border-color:var(--green);background:#113222}.opt.bad{border-color:var(--red);background:#331820}.feedback{display:none;color:var(--muted);margin-top:7px}.actions{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px}.btn{padding:10px 14px;border:1px solid var(--line);border-radius:11px;background:#172131;color:white;cursor:pointer;transition:.2s}.btn:hover{transform:translateY(-2px)}.primary{border:0;background:linear-gradient(135deg,var(--violet),#527dff)}.score{font-weight:800}.final{display:none;padding:30px}.resources{display:none;padding:25px}.resourceGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}.resource{padding:15px;border:1px solid var(--line);background:#0b111a;border-radius:14px}.resource h4{margin:0 0 4px}.resource p{margin:0;color:var(--muted)}.notes{white-space:pre-wrap;background:#0a0f16;border:1px solid var(--line);padding:17px;border-radius:14px}.toast{position:fixed;right:18px;bottom:18px;padding:12px 15px;background:#182130;border:1px solid var(--line);border-radius:12px;opacity:0;transform:translateY(12px);transition:.25s}.toast.show{opacity:1;transform:none}
+@media(max-width:800px){.columns{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.prog{min-width:170px}.hero h1{font-size:34px}}@media(max-width:550px){.wrap{padding:10px}.top{position:relative;top:0;flex-direction:column;align-items:stretch}.prog{min-width:0}.stats,.resourceGrid{grid-template-columns:1fr}.hero,.body,.final,.resources{padding:19px}}
+@media print{body{background:#fff;color:#111}.top,.btn,.actions,.toast{display:none!important}section{background:#fff;box-shadow:none;border:1px solid #aaa;break-inside:avoid}.module{opacity:1!important}.lesson p,.resource p,.hero p,.feedback{color:#222}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+<div class="brand"><div class="logo">DS</div><div><b>Interactive Learning Studio</b><small>Complete Data Structures Fundamentals</small></div></div>
+<div class="prog"><span id="pct">0%</span><div class="track"><div class="fill" id="fill"></div></div></div>
+</header>
+
+<section class="hero">
+<div class="eyebrow">Interactive tutorial</div>
+<h1>Complete Data Structures Fundamentals</h1>
+<p>Learn how arrays, linked lists, stacks, queues, hashing, trees and heaps work together. More importantly, learn how to select a structure by the operations and constraints of a real problem.</p>
+<div class="chips"><span class="chip">⏱ 75–100 min</span><span class="chip">🎯 Beginner → Intermediate</span><span class="chip">🧠 16 questions</span><span class="chip">🏆 4 badges</span></div>
+<div class="stats">
+<div class="stat"><strong>Prerequisite</strong><span>Basic variables, loops and functions</span></div>
+<div class="stat"><strong>Outcome</strong><span>Choose structures by workload</span></div>
+<div class="stat"><strong>Unlock</strong><span>80% per module</span></div>
+<div class="stat"><strong>Reward</strong><span>Mastery badge + challenge</span></div>
+</div>
+</section>
+
+<section class="module unlocked" id="m1">
+<div class="head"><div class="eyebrow">Module 1 · Foundations</div><h2>Arrays & Linked Lists</h2><p>Understand memory layout, indexing and insertion trade-offs.</p></div>
+<div class="body"><div class="columns"><article class="lesson">
+<h3>Arrays: direct access</h3>
+<p>An array stores elements in a sequence of adjacent memory locations. With an index, the address can be calculated directly, so reading an element by index is typically <b>O(1)</b>.</p>
+<div class="diagram"><div class="nodes"><span class="node">A[0]</span><span class="node">A[1]</span><span class="node">A[2]</span><span class="node">A[3]</span></div><small>Adjacent storage → direct indexing</small></div>
+<div class="callout"><b>Analogy:</b> Think of numbered lockers. If you know locker 17, you know where to look. Adding a locker in the middle can require shifting later lockers.</div>
+<h3>Linked lists: connected nodes</h3>
+<p>A singly linked list stores a value and a link to the next node. It can make insertion or deletion near a known position efficient, but reaching an arbitrary position requires traversal.</p>
+<div class="diagram"><div class="nodes"><span class="node">10 | next</span><span class="arrow">→</span><span class="node">20 | next</span><span class="arrow">→</span><span class="node">30 | null</span></div></div>
+<table class="table"><tr><th>Operation</th><th>Array</th><th>Linked list</th></tr><tr><td>Index access</td><td>O(1)</td><td>O(n)</td></tr><tr><td>Insert front</td><td>Often O(n)</td><td>O(1) with head</td></tr><tr><td>Unsorted search</td><td>O(n)</td><td>O(n)</td></tr></table>
+<h3>Misconception</h3><p>“Linked lists are always faster for insertion.” The insertion itself may be O(1), but finding the insertion point can cost O(n). Arrays may also be faster in practice because contiguous memory is cache-friendly.</p>
+<div class="exercise"><b>Mini exercise:</b> You repeatedly need the 10,000th element. Which structure is a natural first choice? <button class="btn" onclick="this.nextElementSibling.textContent=' Array — index access is the key advantage.'">Reveal</button><span></span></div>
+</article><aside><div class="callout"><b>Key takeaway</b><br>Choose based on the operations you perform most often.</div></aside></div>
+<div class="quiz" data-id="1"><h3>Module 1 Quiz</h3>
+<div class="question" data-a="B"><b>1. Which is typically O(1) for an array?</b><div class="options"><button class="opt">A. Middle insertion</button><button class="opt">B. Index access</button><button class="opt">C. Unsorted search</button><button class="opt">D. Middle deletion</button></div><div class="feedback">Direct indexing is the defining performance advantage.</div></div>
+<div class="question" data-a="C"><b>2. Why is arbitrary linked-list access usually O(n)?</b><div class="options"><button class="opt">A. Nodes cannot store data</button><button class="opt">B. Links are sorted</button><button class="opt">C. Nodes may need to be followed one by one</button><button class="opt">D. It requires a hash function</button></div><div class="feedback">The list must generally be traversed from a known node such as the head.</div></div>
+<div class="question" data-a="A"><b>3. What should guide a data-structure choice?</b><div class="options"><button class="opt">A. Operations and constraints</button><button class="opt">B. The newest language feature</button><button class="opt">C. The longest code</button><button class="opt">D. The most methods</button></div><div class="feedback">Structures are trade-offs; the workload determines which trade-off is useful.</div></div>
+<div class="question" data-a="D"><b>4. Which statement is most accurate?</b><div class="options"><button class="opt">A. Lists always beat arrays</button><button class="opt">B. Arrays cannot change</button><button class="opt">C. O(1) always means fastest in practice</button><button class="opt">D. Big-O describes growth, while hardware and constants also matter</button></div><div class="feedback">Asymptotic analysis matters, but real performance has additional factors.</div></div>
+<div class="actions"><span class="score" id="s1">Not attempted</span><button class="btn primary" onclick="grade(1)">Check & unlock</button></div></div></div>
+</section>
+
+<section class="module" id="m2">
+<div class="head"><div class="eyebrow">Module 2 · Linear Tools</div><h2>Stacks, Queues & Hashing</h2><p>Recognize LIFO, FIFO and key-based lookup patterns.</p></div>
+<div class="body"><div class="columns"><article class="lesson">
+<h3>Stack — LIFO</h3><p>A stack removes the newest item first. Core operations include <code>push</code> and <code>pop</code>. Common applications include undo systems, expression parsing, recursion and depth-first search.</p>
+<div class="diagram"><div class="nodes"><span class="node">C</span><span class="node">B</span><span class="node">A</span><span class="arrow">← pop</span></div></div>
+<h3>Queue — FIFO</h3><p>A queue removes the oldest waiting item first. It is useful for print jobs, request handling and breadth-first search.</p>
+<div class="callout"><b>Analogy:</b> Stack = pile of plates. Queue = people waiting in a line.</div>
+<h3>Hash table</h3><p>A hash table uses a hash function to map a key toward a bucket or index. Under typical assumptions, lookup, insertion and deletion are expected to be O(1), but collisions and resizing affect performance.</p>
+<div class="diagram"><div class="nodes"><span class="node">user42</span><span class="arrow">→ hash →</span><span class="node">bucket</span><span class="arrow">→</span><span class="node">profile</span></div></div>
+<table class="table"><tr><th>Need</th><th>Natural structure</th></tr><tr><td>Undo / nested matching</td><td>Stack</td></tr><tr><td>Waiting line</td><td>Queue</td></tr><tr><td>Fast key lookup</td><td>Hash table</td></tr></table>
+<h3>Misconception</h3><p>“Hash tables are always O(1).” Average or expected performance can be O(1) with suitable assumptions; collisions, poor hashing and adversarial inputs can change the behavior.</p>
+</article><aside><div class="callout"><b>Pattern detector</b><br>“Most recent” → stack. “First come” → queue. “Given this key, find its value” → hash table.</div></aside></div>
+<div class="quiz" data-id="2"><h3>Module 2 Quiz</h3>
+<div class="question" data-a="A"><b>1. Which is LIFO?</b><div class="options"><button class="opt">A. Stack</button><button class="opt">B. Queue</button><button class="opt">C. Hash table</button><button class="opt">D. Tree</button></div><div class="feedback">Last In, First Out describes a stack.</div></div>
+<div class="question" data-a="C"><b>2. A service waiting line is best modeled by a:</b><div class="options"><button class="opt">A. Stack</button><button class="opt">B. Heap</button><button class="opt">C. Queue</button><button class="opt">D. Tree</button></div><div class="feedback">FIFO preserves arrival order.</div></div>
+<div class="question" data-a="B"><b>3. What does a hash function help determine?</b><div class="options"><button class="opt">A. Tree height</button><button class="opt">B. A bucket/location derived from a key</button><button class="opt">C. Queue order</button><button class="opt">D. Array length</button></div><div class="feedback">The hash value helps select where an entry belongs.</div></div>
+<div class="question" data-a="D"><b>4. What can degrade hash-table performance?</b><div class="options"><button class="opt">A. Keys</button><button class="opt">B. Values</button><button class="opt">C. Reading entries</button><button class="opt">D. Many collisions or poor hashing</button></div><div class="feedback">Collisions create additional work and can become costly when the table is overloaded.</div></div>
+<div class="actions"><span class="score" id="s2">Locked</span><button class="btn primary" onclick="grade(2)">Check & unlock</button></div></div></div>
+</section>
+
+<section class="module" id="m3">
+<div class="head"><div class="eyebrow">Module 3 · Hierarchical Structures</div><h2>Trees, BSTs & Heaps</h2><p>Learn hierarchy, ordered search and priority-based access.</p></div>
+<div class="body"><div class="columns"><article class="lesson">
+<h3>Trees</h3><p>Trees represent parent-child relationships. They are useful for file systems, organizational hierarchies and syntax trees.</p>
+<div class="diagram"><div class="node">50</div><div class="arrow">↙ &nbsp;&nbsp;&nbsp; ↘</div><div class="nodes"><span class="node">30</span><span class="node">70</span></div><div class="arrow">↙ ↘ &nbsp;&nbsp; ↙ ↘</div><div class="nodes"><span class="node">20</span><span class="node">40</span><span class="node">60</span><span class="node">80</span></div></div>
+<h3>Binary Search Tree</h3><p>A BST maintains an ordering rule: smaller keys are placed to the left and larger keys to the right (with a chosen duplicate policy). A balanced BST can support search near O(log n), while a skewed tree can degrade toward O(n).</p>
+<h3>Traversals</h3><p><b>Preorder:</b> root → left → right. <b>Inorder:</b> left → root → right. <b>Postorder:</b> left → right → root. Inorder traversal of a valid BST visits keys in sorted order.</p>
+<h3>Heap / Priority Queue</h3><p>A heap focuses on priority. In a min-heap the smallest element is at the root; in a max-heap the largest is. A heap is commonly used to implement priority queues.</p>
+<div class="callout"><b>Analogy:</b> A heap is like a triage desk: the highest-priority case is quickly available, but the entire waiting area is not fully sorted.</div>
+<h3>Misconception</h3><p>Not every tree is a BST. A BST is a specialized binary tree with an ordering rule.</p>
+</article><aside><div class="callout"><b>Remember</b><br>BST = ordered search. Heap = priority access. General tree = hierarchy.</div></aside></div>
+<div class="quiz" data-id="3"><h3>Module 3 Quiz</h3>
+<div class="question" data-a="B"><b>1. Inorder traversal of a valid BST gives:</b><div class="options"><button class="opt">A. Random order</button><button class="opt">B. Sorted order</button><button class="opt">C. Insertion order</button><button class="opt">D. Reverse level order</button></div><div class="feedback">Left → root → right follows the BST ordering.</div></div>
+<div class="question" data-a="D"><b>2. A balanced BST can search in about:</b><div class="options"><button class="opt">A. O(1)</button><button class="opt">B. O(n²)</button><button class="opt">C. O(n log n)</button><button class="opt">D. O(log n)</button></div><div class="feedback">A balanced tree has logarithmic height.</div></div>
+<div class="question" data-a="A"><b>3. What is the key purpose of a heap?</b><div class="options"><button class="opt">A. Efficient access to the highest/lowest priority item</button><button class="opt">B. Alphabetical storage</button><button class="opt">C. Guarantee binary search</button><button class="opt">D. Remove comparisons</button></div><div class="feedback">The heap property puts the relevant priority at the root.</div></div>
+<div class="question" data-a="C"><b>4. What can happen to an unbalanced BST?</b><div class="options"><button class="opt">A. It becomes a hash table</button><button class="opt">B. Search becomes impossible</button><button class="opt">C. Height can approach n</button><button class="opt">D. It must become a heap</button></div><div class="feedback">A skewed BST can behave similarly to a linked list.</div></div>
+<div class="actions"><span class="score" id="s3">Locked</span><button class="btn primary" onclick="grade(3)">Check & unlock</button></div></div></div>
+</section>
+
+<section class="module" id="m4">
+<div class="head"><div class="eyebrow">Module 4 · Integration</div><h2>Choose the Right Data Structure</h2><p>Turn requirements into structure choices instead of memorizing definitions.</p></div>
+<div class="body"><div class="lesson">
+<h3>A practical decision framework</h3>
+<div class="diagram"><div class="nodes"><span class="node">Fast index?</span><span class="arrow">→</span><span class="node">Array</span><span class="node">Fast key lookup?</span><span class="arrow">→</span><span class="node">Hash table</span></div><br><div class="nodes"><span class="node">LIFO?</span><span class="arrow">→</span><span class="node">Stack</span><span class="node">FIFO?</span><span class="arrow">→</span><span class="node">Queue</span><span class="node">Priority?</span><span class="arrow">→</span><span class="node">Heap</span></div></div>
+<h3>Real-world scenarios</h3><p><b>Browser back:</b> stack, because the most recent page is the first one you return from.</p><p><b>User ID → profile:</b> hash table/map, because the dominant operation is lookup by a key.</p><p><b>Emergency scheduler:</b> priority queue, commonly backed by a heap, because the next item depends on priority.</p><p><b>File system:</b> tree, because folders and files naturally form a hierarchy. DFS or BFS can then be layered on top using a stack or queue.</p>
+<div class="callout"><b>Mastery rule:</b> Identify the dominant operation, ordering requirement and constraints. Then choose the structure whose strengths fit the workload. Finally consider memory, implementation complexity and worst-case behavior.</div>
+<div class="quiz" data-id="4"><h3>Module 4 Quiz</h3>
+<div class="question" data-a="C"><b>1. Browser back history is naturally modeled by:</b><div class="options"><button class="opt">A. Queue</button><button class="opt">B. Heap</button><button class="opt">C. Stack</button><button class="opt">D. Hash table</button></div><div class="feedback">The newest history entry is removed first.</div></div>
+<div class="question" data-a="A"><b>2. Frequent lookup by user ID suggests:</b><div class="options"><button class="opt">A. Hash table</button><button class="opt">B. Stack</button><button class="opt">C. Queue</button><button class="opt">D. Heap</button></div><div class="feedback">Key → value lookup is the core strength of a hash table.</div></div>
+<div class="question" data-a="D"><b>3. Repeatedly selecting the highest-priority task suggests:</b><div class="options"><button class="opt">A. Linked list only</button><button class="opt">B. Stack</button><button class="opt">C. Plain queue</button><button class="opt">D. Priority queue / heap</button></div><div class="feedback">A priority queue exposes the next priority efficiently.</div></div>
+<div class="question" data-a="B"><b>4. What is the best general selection strategy?</b><div class="options"><button class="opt">A. Always use arrays</button><button class="opt">B. Match operations and constraints to structure strengths</button><button class="opt">C. Always choose the smallest Big-O</button><button class="opt">D. Choose the shortest code</button></div><div class="feedback">Good engineering balances operations, complexity, memory and practical constraints.</div></div>
+<div class="actions"><span class="score" id="s4">Locked</span><button class="btn primary" onclick="grade(4)">Finish tutorial</button></div></div>
+</div></div></section>
+
+<section class="final" id="final">
+<div class="eyebrow">Mastery unlocked</div><h2>🎉 Final Practical Challenge</h2>
+<p>Design a small online-store data layer: product lookup by ID, undo for edits, a first-come support queue, and a “top 10 most expensive products” feature.</p>
+<button class="btn primary" onclick="document.getElementById('solution').hidden=false">Reveal solution</button>
+<div id="solution" class="callout" hidden><ul><li><b>Product ID:</b> hash table/map.</li><li><b>Undo:</b> stack.</li><li><b>Support:</b> queue.</li><li><b>Top 10:</b> a heap is often useful when processing many items while retaining only the best 10; exact design depends on constraints.</li></ul></div>
+<h2>Cheat Sheet</h2>
+<div class="notes">ARRAY — fast index access; compact storage; middle insertion/deletion often shifts elements.
+LINKED LIST — linked nodes; useful local insertion/deletion; slow random access.
+STACK — LIFO; push/pop; undo, recursion, nested structures.
+QUEUE — FIFO; enqueue/dequeue; waiting systems and BFS.
+HASH TABLE — key/value lookup; expected O(1) under typical assumptions; collisions matter.
+TREE — hierarchy; parent/child relationships.
+BST — ordered binary tree; balanced search near O(log n), skew can reach O(n).
+HEAP — priority-focused; min/max at root; priority queues and top-k patterns.
+
+Selection checklist:
+1. What operation dominates?
+2. Do I need index, key, FIFO, LIFO or priority access?
+3. Do I need ordering or uniqueness?
+4. What are memory and performance constraints?
+5. What are the practical and worst-case behaviors?</div>
+<h2>Summary Notes</h2><ul><li>There is no universally “best” data structure.</li><li>Big-O describes growth, while constants and hardware affect practical performance.</li><li>Specialized structures exist because workloads differ.</li><li>Problem-pattern recognition is more valuable than isolated memorization.</li></ul>
+</section>
+
+<section class="resources" id="resources">
+<h2>📚 Continue Learning</h2><div class="resourceGrid">
+<div class="resource"><h4>Books</h4><p>Introduction to Algorithms (CLRS); Data Structures and Algorithm Analysis; Grokking Algorithms.</p></div>
+<div class="resource"><h4>Documentation</h4><p>Study your language's vector/array, map/unordered_map, stack, queue, set and priority queue documentation.</p></div>
+<div class="resource"><h4>Research</h4><p>Explore classic work on hashing, balanced trees, heaps and cache-aware data structures for deeper theory.</p></div>
+<div class="resource"><h4>Communities</h4><p>Stack Overflow, university forums and language-specific programming communities.</p></div>
+<div class="resource"><h4>Practice</h4><p>LeetCode, HackerRank, Codeforces, CodeChef and AtCoder.</p></div>
+<div class="resource"><h4>Search Keywords</h4><p>array vs linked list, stack patterns, queue BFS, hash collisions, BST traversal, heap priority queue, top-k heap, amortized analysis.</p></div>
+<div class="resource"><h4>AI Prompts</h4><p>“Teach heaps using scheduling.” “Give me 10 stack problems from easy to hard.” “Review my data-structure choice.” “Explain amortized analysis with dynamic arrays.”</p></div>
+<div class="resource"><h4>Printable Notes</h4><p>Use your browser's Print command to save the completed lesson as a PDF.</p></div>
+</div></section>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const unlocked=1,done={};
+document.querySelectorAll(".options").forEach(g=>g.addEventListener("click",e=>{
+ if(!e.target.classList.contains("opt"))return;
+ [...g.children].forEach(x=>x.classList.remove("sel"));
+ e.target.classList.add("sel");
+}));
+function toast(t){const x=document.getElementById("toast");x.textContent=t;x.classList.add("show");clearTimeout(window.tt);window.tt=setTimeout(()=>x.classList.remove("show"),2200)}
+function grade(n){
+ if(n>1&&!done[n-1])return toast("Finish the previous module first.");
+ const box=document.querySelector('.quiz[data-id="'+n+'"]');let score=0;
+ box.querySelectorAll(".question").forEach(q=>{
+  const chosen=q.querySelector(".opt.sel"),ans=q.dataset.a,fb=q.querySelector(".feedback");
+  q.querySelectorAll(".opt").forEach(o=>o.classList.remove("good","bad"));
+  if(chosen){
+   const letter=chosen.textContent.trim()[0];
+   if(letter===ans){score++;chosen.classList.add("good")}
+   else{chosen.classList.add("bad");q.querySelectorAll(".opt").forEach(o=>{if(o.textContent.trim()[0]===ans)o.classList.add("good")})}
+   fb.style.display="block";
+  }else{fb.style.display="block";fb.textContent="Select an answer first; the explanation appears after you answer."}
+ });
+ const pct=Math.round(score/4*100);document.getElementById("s"+n).textContent=score+"/4 correct · "+pct+"%";
+ if(pct>=80){
+  done[n]=true;
+  if(n<4){const m=document.getElementById("m"+(n+1));m.classList.add("unlocked");m.scrollIntoView({behavior:"smooth"});toast("🏅 Module "+n+" badge earned — next module unlocked!")}
+  else{document.getElementById("final").style.display="block";document.getElementById("resources").style.display="block";document.getElementById("final").scrollIntoView({behavior:"smooth"});toast("🏆 Tutorial complete!")}
+ }else toast("Review the explanations and try again. 80% unlocks the next module.");
+ const p=Math.round(Object.keys(done).length/4*100);document.getElementById("pct").textContent=p+"%";document.getElementById("fill").style.width=p+"%";
+}
+</script>
+</body>
+</html>
