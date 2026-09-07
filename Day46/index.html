@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Autonomous Agent Studio</title>
+<style>
+:root{--bg:#07111f;--p:#0d1b2e;--p2:#10233b;--t:#edf5ff;--m:#8ea5bf;--l:#1d3653;--a:#62d5ff;--g:#49d17d;--r:#ff6b7a}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% 0,#12304e,#07111f 45%,#050b14);color:var(--t);font-family:system-ui,-apple-system,Segoe UI,sans-serif}.app{max-width:1450px;margin:auto;padding:24px}
+.top{display:flex;justify-content:space-between;gap:20px;margin-bottom:18px}.top h1{margin:0;font-size:30px}.top p{color:var(--m);margin:6px 0}.badges{display:flex;gap:8px}.badge{border:1px solid var(--l);padding:7px 10px;border-radius:20px;font-size:11px;color:#bcd0e6;background:#0a1727}
+.grid{display:grid;grid-template-columns:360px 1fr;gap:18px}.card{background:linear-gradient(180deg,#10233b,#0a1829);border:1px solid var(--l);border-radius:18px;padding:18px;box-shadow:0 18px 50px #0005}
+h2,h3{margin:0 0 12px}.small{font-size:12px;color:var(--m)}label{display:block;font-size:12px;color:#b9cce0;margin:14px 0 7px}
+textarea,input,select{width:100%;background:#081526;color:var(--t);border:1px solid #24415f;border-radius:10px;padding:10px}textarea{min-height:100px;resize:vertical}.actions{display:flex;gap:8px;margin-top:14px}
+button{border:0;border-radius:10px;padding:11px 14px;font-weight:700}.primary{background:linear-gradient(135deg,var(--a),#4fa8ff);color:#03101d}.secondary{background:#162b44;color:#dcecff;border:1px solid var(--l)}
+.status{display:flex;gap:9px;align-items:center;margin-bottom:12px}.dot{width:9px;height:9px;border-radius:50%;background:#64778c}.dot.live{background:var(--g);box-shadow:0 0 14px var(--g)}
+.pipeline{display:flex;align-items:center;gap:7px;overflow:auto;padding:3px 0 15px}.node{min-width:105px;padding:11px 8px;border:1px solid var(--l);background:#09182a;border-radius:11px;text-align:center;font-size:12px}.node.active{border-color:var(--a);box-shadow:0 0 20px #62d5ff22;transform:translateY(-2px)}.loop{color:var(--a);font-size:11px;white-space:nowrap}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:15px}.stat{padding:12px;background:#09182a;border:1px solid var(--l);border-radius:12px}.stat b{display:block;font-size:21px}.stat span{font-size:11px;color:var(--m)}
+.main{display:grid;grid-template-columns:1.05fr .95fr;gap:15px}.tabs{display:flex;gap:6px;margin-bottom:9px}.tab{padding:7px 9px;border:1px solid var(--l);background:#09182a;color:#a9bfd7}.tab.on{color:#fff;border-color:#47718f;background:#122941}
+.output{min-height:130px;max-height:300px;overflow:auto;background:#071321;border:1px solid var(--l);border-radius:12px;padding:12px;white-space:pre-wrap;font-size:13px;line-height:1.5}.history,.log{max-height:390px;overflow:auto}.round{padding:11px;margin-bottom:8px;background:#081526;border:1px solid var(--l);border-radius:11px}.roundhead{display:flex;justify-content:space-between}.score{color:var(--g);font-weight:800}.delta{color:var(--a)}.logitem{padding:8px 0;border-bottom:1px solid #172c44;font-size:12px}.memory{display:flex;gap:7px;flex-wrap:wrap}.memory span{font-size:11px;background:#101f34;border:1px solid var(--l);padding:6px 8px;border-radius:8px}.footer{text-align:center;color:var(--m);font-size:11px;margin-top:16px}
+@media(max-width:1000px){.grid,.main{grid-template-columns:1fr}}@media(max-width:650px){.app{padding:12px}.top{flex-direction:column}.stats{grid-template-columns:repeat(2,1fr)}}
+</style></head>
+<body><div class="app">
+<div class="top"><div><h1>Autonomous Agent Studio</h1><p>Live multi-agent orchestration with an open-ended improvement loop.</p></div><div class="badges"><span class="badge">LIVE API</span><span class="badge">OPEN LOOP</span><span class="badge">EXPLAINABLE STOPS</span></div></div>
+<div class="grid"><aside class="card">
+<h2>Workflow Interview</h2><div class="small">Configure the autonomous run.</div>
+<label>Goal / workflow</label><textarea id="goal">Create a high-quality product launch plan for a small AI startup, including positioning, channels, timeline, budget assumptions, and measurable success criteria.</textarea>
+<label>Primary success criterion</label><select id="criterion"><option>Overall quality score</option><option>Accuracy / factual reliability</option><option>Completeness</option><option>Actionability</option></select>
+<label>Target score (0–100)</label><input id="target" type="number" min="1" max="100" value="90">
+<label>Stop policy</label><select id="stopPolicy"><option>Plateau → Threshold → Safety cap</option><option>Threshold → Plateau → Safety cap</option></select>
+<label>Claude model</label><input id="model" value="claude-sonnet-4-20250514">
+<label>Anthropic API key</label><input id="apiKey" type="password" placeholder="Required for direct browser calls">
+<div class="small" style="margin-top:8px">The Anthropic API requires an API key. For production, use a server-side proxy instead of exposing a long-lived secret in a public frontend.</div>
+<div class="actions"><button class="primary" id="start">Start autonomous run</button><button class="secondary" id="reset">Reset</button></div>
+<div class="small" style="margin-top:10px">No fixed round count is chosen. The loop stops only when a stop check fires or the safety fallback is reached.</div>
+</aside>
+<main><div class="card">
+<div class="status"><span id="dot" class="dot"></span><b id="status">Ready</b><span class="small" id="roundLabel">No active round</span></div>
+<div class="pipeline">
+<div class="node" data-agent="Planner">Planner</div><span>→</span><div class="node" data-agent="Executor">Executor</div><span>→</span><div class="node" data-agent="Evaluator">Evaluator</div><span>→</span><div class="node" data-agent="Critic">Critic</div><span>→</span><div class="node" data-agent="Improver">Improver</div><span class="loop">↺ return to Evaluator</span><span>⇢</span><div class="node" data-agent="Final Reviewer">Final Reviewer</div></div>
+<div class="stats"><div class="stat"><b id="rounds">0</b><span>rounds completed</span></div><div class="stat"><b id="score">—</b><span>latest score</span></div><div class="stat"><b id="retries">0</b><span>retries</span></div><div class="stat"><b id="stop">—</b><span>stop reason</span></div></div>
+<div class="main"><section><h3>Intermediate outputs</h3><div class="tabs"><button class="tab on" data-tab="draft">Draft</button><button class="tab" data-tab="evaluation">Evaluation</button><button class="tab" data-tab="critique">Critique</button><button class="tab" data-tab="improvement">Improvement</button></div><div class="output" id="output">Start a run to see literal model responses.</div><h3 style="margin-top:15px">Memory updates</h3><div class="memory" id="memory"><span>No memory updates yet.</span></div></section>
+<section><h3>Iteration history</h3><div class="history" id="history"></div><h3 style="margin-top:15px">Activity log</h3><div class="log" id="log"></div></section></div></div>
+<div class="card" style="margin-top:15px"><h3>Final summary</h3><div class="output" id="final">Final Reviewer will summarize the best draft after a stop condition fires.</div></div>
+<div class="footer">Planner → Executor → Evaluator ↔ Critic ↔ Improver → Final Reviewer · Memory Manager + Safety Monitor are cross-cutting agents.</div>
+</main></div></div>
+<script>
+"use strict";
+const A={
+Planner:"You are the Planner in a production autonomous agent system. Convert the user's goal into a concrete execution plan with objectives, constraints, deliverables, assumptions, dependencies, and an evaluation rubric. Do not claim work is complete.",
+Executor:"You are the Executor. Produce the requested deliverable from the user's goal and plan. Be concrete, complete, useful, and internally consistent. Return the working deliverable.",
+Evaluator:"You are the Evaluator. Judge the CURRENT DRAFT against the RUBRIC and USER GOAL. Make a model judgment for this exact draft. Return literal text in this format: SCORE: <0-100>\nREASONING: ...\nGAPS: ...",
+Critic:"You are the Critic. Read the current draft and complete Evaluator response. Identify the highest-impact flaws, omissions, contradictions, unsupported assumptions, and actionable corrections. Do not invent a score.",
+Improver:"You are the Improver. Improve the current draft using the latest evaluation and critique. Preserve strengths, fix weaknesses, and return the complete improved deliverable.",
+"Memory Manager":"You are the Memory Manager. Extract 3-8 concise durable insights from the latest evaluation, critique, and improved draft that are useful in later rounds. Avoid transient filler.",
+"Safety Monitor":"You are the Safety Monitor. Check the current run for unsafe, deceptive, privacy-invasive, or clearly disallowed behavior. Return SAFE if no blocking issue exists; otherwise explain the blocking issue.",
+"Final Reviewer":"You are the Final Reviewer. Produce the final answer from the best available draft, run history, memory, and exact stop reason. Clearly name the stop condition."
+};
+const $=id=>document.getElementById(id); let S={running:false,history:[],mem:[],retry:0,tab:"draft",out:{draft:"",evaluation:"",critique:"",improvement:""}};
+function esc(x){return String(x).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function log(x){let e=document.createElement("div");e.className="logitem";e.innerHTML="<span style='color:#8ea5bf'>"+new Date().toLocaleTimeString()+"</span> "+esc(x);$("log").prepend(e)}
+function agent(n){document.querySelectorAll(".node").forEach(x=>x.classList.toggle("active",x.dataset.agent===n))}
+function status(x,live=true){$("status").textContent=x;$("dot").classList.toggle("live",live)}
+function wait(ms){return new Promise(r=>setTimeout(r,ms))}
+function scoreOf(t){let m=String(t).match(/SCORE\s*:\s*(\d+(?:\.\d+)?)/i);return m?Math.max(0,Math.min(100,Number(m[1]))):null}
+function render(){ $("output").textContent=S.out[S.tab]||"No output yet."; $("rounds").textContent=S.history.length; if(S.history.length)$("score").textContent=S.history.at(-1).score??"—"; $("retries").textContent=S.retry; $("history").innerHTML=S.history.map((r,i)=>"<div class='round'><div class='roundhead'><b>Round "+(i+1)+"</b><span class='score'>"+(r.score==null?"No score":r.score+"/100")+" "+(r.delta==null?"":"<span class='delta'>("+(r.delta>=0?"+":"")+r.delta+")</span>")+"</span></div><div class='small' style='margin-top:5px'>"+esc(r.stopCheck)+"</div><div style='font-size:12px;margin-top:6px'>"+esc(r.critique.slice(0,420))+(r.critique.length>420?"…":"")+"</div></div>").join(""); $("memory").innerHTML=S.mem.length?S.mem.map(x=>"<span>"+esc(x)+"</span>").join(""):"<span>No memory updates yet.</span>"}
+async function call(agentName,payload,attempt=0){
+ const key=$("apiKey").value.trim(); if(!key)throw Error("Missing Anthropic API key.");
+ try{let r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:$("model").value.trim()||"claude-sonnet-4-20250514",max_tokens:5000,system:A[agentName],messages:[{role:"user",content:payload}]})});let d=await r.json();if(!r.ok)throw Error(d?.error?.message||"HTTP "+r.status);return(d.content||[]).filter(x=>x.type==="text").map(x=>x.text).join("\n").trim()}catch(e){if(attempt<2){S.retry++;render();log("Retrying "+agentName+": "+e.message);await wait(600*(attempt+1));return call(agentName,payload,attempt+1)}throw e}
+}
+function rubric(){return "Primary success criterion: "+$("criterion").value+". Target: "+$("target").value+"/100. Evaluate usefulness, internal consistency, completeness, and the selected criterion."}
+async function run(){
+ if(S.running)return;S.running=true;$("start").disabled=true;S.history=[];S.mem=[];S.retry=0;$("stop").textContent="—";$("final").textContent="";$("log").innerHTML="";
+ let goal=$("goal").value.trim();if(!goal){log("Goal is required.");S.running=false;$("start").disabled=false;return}
+ try{
+  agent("Planner");status("Planning…");log("Planner started.");
+  let plan=await call("Planner","USER GOAL:\n"+goal+"\n\n"+rubric());log("Planner completed.");
+  agent("Executor");status("Executing…");let draft=await call("Executor","USER GOAL:\n"+goal+"\n\nPLAN:\n"+plan);S.out.draft=draft;render();log("Executor produced the initial draft.");
+  const hardCap=25;let previous=null,plateau=0,round=0,reason=null;
+  while(true){
+   round++;$("roundLabel").textContent="Round "+round+" — checking stop condition…";
+   agent("Safety Monitor");status("Safety Monitor checking…");let safe=await call("Safety Monitor","USER GOAL:\n"+goal+"\n\nCURRENT DRAFT:\n"+draft);log("Safety Monitor completed.");if(!/^SAFE\b/i.test(safe)){reason="Safety Monitor";break}
+   agent("Evaluator");status("Evaluating current draft…");let evaluation=await call("Evaluator","USER GOAL:\n"+goal+"\n\nRUBRIC:\n"+rubric()+"\n\nCURRENT DRAFT:\n"+draft+"\n\nMEMORY:\n"+S.mem.join("\n"));let sc=scoreOf(evaluation);S.out.evaluation=evaluation;render();log("Evaluator completed with literal response.");
+   agent("Critic");status("Critiquing current draft…");let critique=await call("Critic","USER GOAL:\n"+goal+"\n\nCURRENT DRAFT:\n"+draft+"\n\nEVALUATOR RESPONSE:\n"+evaluation);S.out.critique=critique;render();log("Critic completed.");
+   let delta=sc!=null&&previous!=null?Number((sc-previous).toFixed(2)):null;if(delta!=null&&Math.abs(delta)<1)plateau++;else plateau=0;
+   let stopCheck="Continue — no stop condition fired.";
+   if(plateau>=2){reason="Plateau";stopCheck="STOP: plateau — improvement was less than 1 point for 2 straight rounds."}
+   else if(sc!=null&&sc>=Number($("target").value)){reason="Threshold";stopCheck="STOP: threshold — score "+sc+" crossed target "+$("target").value+"."}
+   else if(round>=hardCap){reason="Hard iteration cap";stopCheck="STOP: hard iteration cap — "+hardCap+" rounds reached as a safety fallback."}
+   S.history.push({score:sc,critique,draft,delta,stopCheck});render();if(reason){$("stop").textContent=reason;log(stopCheck);break}
+   agent("Improver");status("Improving current draft…");let improved=await call("Improver","USER GOAL:\n"+goal+"\n\nCURRENT DRAFT:\n"+draft+"\n\nLATEST EVALUATION:\n"+evaluation+"\n\nLATEST CRITIQUE:\n"+critique+"\n\nMEMORY:\n"+S.mem.join("\n"));S.out.improvement=improved;draft=improved;S.out.draft=draft;render();log("Improver completed; improved draft becomes next Evaluator input.");
+   agent("Memory Manager");status("Updating memory…");let mem=await call("Memory Manager","GOAL:\n"+goal+"\n\nEVALUATION:\n"+evaluation+"\n\nCRITIQUE:\n"+critique+"\n\nIMPROVED DRAFT:\n"+improved);mem.split(/\n+/).map(x=>x.replace(/^[-•*]\s*/,"").trim()).filter(Boolean).slice(0,8).forEach(x=>S.mem.push(x));S.mem=[...new Set(S.mem)].slice(-12);render();log("Memory updated.");previous=sc;
+  }
+  agent("Final Reviewer");status("Final review…");$("roundLabel").textContent="Stopped after "+S.history.length+" completed round(s) — final review";let hist=S.history.map((r,i)=>"Round "+(i+1)+": score="+r.score+" delta="+r.delta+" stopCheck="+r.stopCheck+" critique="+r.critique).join("\n\n");let final=await call("Final Reviewer","USER GOAL:\n"+goal+"\n\nSTOP REASON:\n"+reason+"\n\nBEST CURRENT DRAFT:\n"+draft+"\n\nRUN HISTORY:\n"+hist+"\n\nMEMORY:\n"+S.mem.join("\n"));$("final").textContent=final;log("Final Reviewer completed. Run finished.");status("Completed — "+reason,false);
+ }catch(e){log("Run failed: "+e.message);$("final").textContent="Execution failed gracefully: "+e.message+"\n\nCorrect the configuration and start again.";status("Failed — recovery available",false)}
+ finally{S.running=false;$("start").disabled=false;agent("")}
+}
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));b.classList.add("on");S.tab=b.dataset.tab;render()});$("start").onclick=run;$("reset").onclick=()=>location.reload();
+</script></body></html>
