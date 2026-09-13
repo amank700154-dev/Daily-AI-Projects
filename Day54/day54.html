@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Defend Your Experience — Day 54</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--text:#182235;--muted:#667085;--border:#dfe4ec;--primary:#315efb;--soft:#eef2ff;--good:#16845f;--warn:#b77900}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+.app{display:grid;grid-template-columns:240px 1fr;min-height:100vh}.sidebar{background:var(--card);border-right:1px solid var(--border);padding:22px 15px;position:sticky;top:0;height:100vh}
+.logo{font-size:20px;font-weight:800;padding:8px 10px 25px}.logo span{color:var(--primary)}nav{display:grid;gap:6px}
+nav button,.help{border:0;background:transparent;color:var(--muted);padding:12px;text-align:left;border-radius:10px;font-weight:700;cursor:pointer}
+nav button:hover,nav button.active{background:var(--soft);color:var(--primary)}.help{margin-top:18px;border:1px solid var(--border);width:100%;text-align:center}
+main{max-width:1400px;width:100%;margin:auto;padding:35px}.view{display:none}.view.active{display:block}
+header{display:flex;justify-content:space-between;gap:15px;align-items:flex-start}h1{font-size:38px;margin:0 0 8px}h2{margin:0 0 8px}h3{margin:0 0 8px}
+.muted{color:var(--muted);line-height:1.55}.btn{border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:9px;padding:10px 14px;font-weight:700;cursor:pointer}.primary{background:var(--primary);border-color:var(--primary);color:white}
+.notice,.card{background:var(--card);border:1px solid var(--border);border-radius:17px;padding:20px;box-shadow:0 8px 25px rgba(20,30,50,.06)}
+.notice{margin:22px 0}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.number{font-size:31px;font-weight:900}
+.input{margin-top:20px}.drop{margin-top:15px;border:2px dashed var(--border);background:#f9fafc;border-radius:14px;padding:20px;text-align:center}.drop.drag{border-color:var(--primary)}
+textarea{width:100%;min-height:170px;margin-top:15px;padding:12px;border:1px solid var(--border);border-radius:10px;resize:vertical;font-family:inherit}
+.actions{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0}
+input[type=search],select{padding:11px;border:1px solid var(--border);border-radius:9px;background:var(--card);color:var(--text)}
+.claims{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}.badge{display:inline-block;background:var(--soft);color:var(--primary);padding:5px 9px;border-radius:20px;font-size:11px;font-weight:800;text-transform:uppercase}
+.status{float:right;padding:5px 9px;border-radius:20px;font-size:11px;font-weight:800}.strong{background:#e7f7f0;color:var(--good)}.developing{background:#fff4dc;color:var(--warn)}.needs{background:#fdebea;color:#b33}
+.score{margin-top:15px}.bar{height:8px;background:#e9edf3;border-radius:20px;overflow:hidden}.bar i{display:block;height:100%;background:var(--primary)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;padding:20px}.modal-box{max-width:620px;background:var(--card);border-radius:18px;padding:28px}
+@media(max-width:900px){.app{grid-template-columns:1fr}.sidebar{position:relative;height:auto;border-right:0;border-bottom:1px solid var(--border)}nav{grid-template-columns:repeat(3,1fr)}.help{margin-top:10px}.stats,.claims{grid-template-columns:1fr}main{padding:22px}}
+@media(max-width:600px){nav{grid-template-columns:repeat(2,1fr)}header{display:block}h1{font-size:30px}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+<div class="logo">Defend <span>Your Experience</span></div>
+<nav>
+<button class="active" data-page="dashboard">Dashboard</button>
+<button data-page="claims">My Claims</button>
+<button data-page="interview">Defense Interview</button>
+<button data-page="report">Defense Report</button>
+<button data-page="history">Session History</button>
+<button data-page="settings">Settings</button>
+</nav>
+<button class="help" id="help">? What is this?</button>
+</aside>
+
+<main>
+<section class="view active" id="dashboard">
+<header>
+<div><h1>Defend Your Experience</h1><div class="muted">Add your real experience and turn meaningful statements into claims that you can defend in a future interview.</div></div>
+<button class="btn primary" id="focus">Add Experience</button>
+</header>
+<div class="notice"><b>Day 4: Experience &amp; Claims</b><div class="muted">Today focuses on collecting experience, extracting meaningful claims, categorizing them, and saving them locally. The adaptive interview is a later milestone.</div></div>
+<div class="stats">
+<div class="card"><div class="number" id="count">0</div><div class="muted">Claims extracted</div></div>
+<div class="card"><div class="number" id="strong">0</div><div class="muted">Strong claims</div></div>
+<div class="card"><div class="number" id="avg">—</div><div class="muted">Average readiness</div></div>
+</div>
+<div class="card input" id="inputCard">
+<h2>Experience Input</h2><div class="muted">Paste your resume, project, internship, portfolio, research, or other real experience.</div>
+<div class="drop" id="drop"><b>Drag &amp; drop a text file</b><br><span class="muted">TXT, MD, JSON or CSV</span><br>
+<label class="btn" style="display:inline-block;margin-top:12px">Choose File<input hidden id="file" type="file" accept=".txt,.md,.json,.csv"></label>
+<textarea id="experience" placeholder="Example: Built a student management application using HTML, CSS, JavaScript and MySQL. Reduced lookup time by 40%. Led a team of three students."></textarea>
+<div class="actions"><button class="btn" id="clear">Clear</button><button class="btn primary" id="extract">Extract Claims</button></div>
+</div></div>
+<div class="card" style="margin-top:20px"><h2>Recent Claims</h2><div id="recent" class="muted">No claims yet. Add experience above.</div></div>
+</section>
+
+<section class="view" id="claims">
+<header><div><h1>My Claims</h1><div class="muted">Search and filter the claims extracted from your experience.</div></div></header>
+<div class="toolbar"><input id="search" type="search" placeholder="Search claims..."><select id="category"><option value="all">All categories</option><option value="project">Project</option><option value="responsibility">Responsibility</option><option value="skill">Skill</option><option value="result">Result</option><option value="decision">Decision</option><option value="achievement">Achievement</option><option value="experience">Experience</option></select>
+<select id="status"><option value="all">All status</option><option value="strong">Strong</option><option value="developing">Developing</option><option value="needs evidence">Needs evidence</option></select></div>
+<div id="claimList" class="claims"></div>
+</section>
+
+<section class="view" id="interview"><header><div><h1>Defense Interview</h1><div class="muted">The adaptive one-question-at-a-time interview will use today's claims in the next milestone.</div></div></header><div class="card" style="margin-top:20px"><h3>Day 5 handoff</h3><div class="muted">Your extracted claims are ready to become the input for the defense interview.</div></div></section>
+<section class="view" id="report"><header><div><h1>Defense Report</h1><div class="muted">Detailed defense evaluation is scheduled for a later milestone.</div></div></header><div class="card" style="margin-top:20px"><h3>Current claim readiness</h3><div class="muted">The readiness score shown here is an initial claim-quality indicator, not the final defense evaluation.</div></div></section>
+<section class="view" id="history"><header><div><h1>Session History</h1><div class="muted">Interview session history will be added with the interview milestone.</div></div></header></section>
+<section class="view" id="settings"><header><div><h1>Settings</h1><div class="muted">Manage local Day 4 data and application appearance.</div></div></header>
+<div class="stats" style="margin-top:20px"><div class="card"><h3>Theme</h3><div class="muted">Use the current light interface for Day 4.</div></div>
+<div class="card"><h3>Export</h3><div class="muted">Download all current claims as JSON.</div><button class="btn" id="export" style="margin-top:10px">Export JSON</button></div>
+<div class="card"><h3>Reset</h3><div class="muted">Remove claims saved in this browser.</div><button class="btn" id="reset" style="margin-top:10px">Reset Claims</button></div></div></section>
+</main></div>
+
+<div class="modal" id="modal"><div class="modal-box"><h2>What is Defend Your Experience?</h2><p class="muted">It is an interview-defense coach that helps you identify statements about your real experience and later challenge those statements with specific questions about ownership, evidence, decisions, outcomes, trade-offs and lessons.</p><p class="muted">Day 4 collects and organizes those claims. It does not rewrite your resume.</p><button class="btn primary" id="close">Got it</button></div></div>
+
+<script>
+const KEY="defend_experience_day54";
+let claims=JSON.parse(localStorage.getItem(KEY)||"[]");
+const $=id=>document.getElementById(id);
+function save(){localStorage.setItem(KEY,JSON.stringify(claims))}
+function esc(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+function category(t){let x=t.toLowerCase();if(/award|won|recognition|selected|achievement/.test(x))return"achievement";if(/increased|reduced|improved|saved|result|impact|%/.test(x))return"result";if(/decided|decision|chose|selected|because|approach|trade-off/.test(x))return"decision";if(/responsible|managed|led|handled|coordinated|organized/.test(x))return"responsibility";if(/java|python|javascript|react|node|sql|mysql|html|css|c\+\+|git|github|api|machine learning/.test(x))return"skill";if(/built|developed|created|designed|implemented|deployed|project|application|app|website|system/.test(x))return"project";return"experience"}
+function score(t){let s=25;if(t.length>=80)s+=15;if(/\d+%|\d+\+|\b\d+\b/.test(t))s+=20;if(/\b(i|my|me|personally)\b/i.test(t))s+=15;if(/built|developed|implemented|designed|created|led|managed/i.test(t))s+=10;if(/result|impact|improved|reduced|increased|because|measured/i.test(t))s+=10;return Math.min(100,s)}
+function status(s){return s>=75?"strong":s>=50?"developing":"needs evidence"}
+function normalize(t){return t.replace(/
+/g,"").replace(/[ ]{2,}/g," ").replace(/^\s*([-•*▪◦●]|\d+[.)])\s*/gm,"").replace(/
+{3,}/g,"
+
+").trim()}
+function extract(){let raw=$("experience").value.trim();if(!raw){alert("Add your experience first.");return}let lines=normalize(raw).split(/\n+/).map(x=>x.trim()).filter(x=>x.length>=28&&x.split(/\s+/).length>=5);let existing=new Set(claims.map(x=>x.text.toLowerCase()));let added=0;lines.forEach(text=>{let key=text.toLowerCase().replace(/\s+/g," ");if(existing.has(key))return;let s=score(text);claims.push({id:"claim_"+Date.now()+"_"+Math.random().toString(36).slice(2),text,category:category(text),score:s,status:status(s),source:"experience input",createdAt:new Date().toISOString()});existing.add(key);added++});save();render();alert(added+" new claim"+(added===1?"":"s")+" extracted.");show("claims")}
+function render(){ $("count").textContent=claims.length;$("strong").textContent=claims.filter(x=>x.status==="strong").length;$("avg").textContent=claims.length?Math.round(claims.reduce((a,x)=>a+x.score,0)/claims.length):"—";$("recent").innerHTML=claims.length?claims.slice(-5).reverse().map(x=>"<div style='padding:10px 0;border-bottom:1px solid var(--border)'><b>"+esc(x.text)+"</b><br><span class='muted'>"+esc(x.category)+" · "+x.score+"/100</span></div>").join(""):"No claims yet. Add experience above.";renderClaims()}
+function renderClaims(){let q=$("search").value.toLowerCase(),cat=$("category").value,st=$("status").value;let list=claims.filter(x=>(!q||x.text.toLowerCase().includes(q))&&(cat==="all"||x.category===cat)&&(st==="all"||x.status===st));$("claimList").innerHTML=list.length?list.map(x=>"<article class='card'><span class='badge'>"+esc(x.category)+"</span><span class='status "+(x.status==="needs evidence"?"needs":x.status)+"'>"+esc(x.status)+"</span><h3 style='margin-top:15px'>"+esc(x.text)+"</h3><div class='muted'>Source: "+esc(x.source)+"</div><div class='score'><div style='display:flex;justify-content:space-between'><span class='muted'>Defense readiness</span><b>"+x.score+"/100</b></div><div class='bar'><i style='width:"+x.score+"%'></i></div></div></article>").join(""):"<div class='card' style='grid-column:1/-1;text-align:center'><h3>No claims found</h3><div class='muted'>Add experience or change the filters.</div></div>"}
+function show(page){document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));$(page).classList.add("active");document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===page));if(page==="claims")renderClaims()}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>show(b.dataset.page));
+$("extract").onclick=extract;$("clear").onclick=()=>{$("experience").value="";$("file").value=""};$("focus").onclick=()=>{$("inputCard").scrollIntoView({behavior:"smooth"});setTimeout(()=>$("experience").focus(),200)};$("search").oninput=renderClaims;$("category").onchange=renderClaims;$("status").onchange=renderClaims;
+$("help").onclick=()=>{$("modal").style.display="flex"};$("close").onclick=()=>{$("modal").style.display="none"};
+$("file").onchange=e=>{let f=e.target.files[0];if(f){let r=new FileReader();r.onload=()=>{$("experience").value=normalize(r.result)};r.readAsText(f)}};
+$("drop").ondragover=e=>{e.preventDefault();$("drop").classList.add("drag")};$("drop").ondragleave=()=>$("drop").classList.remove("drag");$("drop").ondrop=e=>{e.preventDefault();$("drop").classList.remove("drag");let f=e.dataTransfer.files[0];if(f){let r=new FileReader();r.onload=()=>{$("experience").value=normalize(r.result)};r.readAsText(f)}};
+$("export").onclick=()=>{let blob=new Blob([JSON.stringify({project:"Defend Your Experience",day:54,claims},null,2)],{type:"application/json"});let a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="day54-claims.json";a.click()};
+$("reset").onclick=()=>{if(confirm("Clear all Day 4 claims?")){claims=[];save();render()}};render();
+</script>
+</body>
+</html>
