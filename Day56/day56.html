@@ -1,0 +1,2622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Defend Your Experience</title>
+
+<style>
+:root {
+    --bg: #f5f7fb;
+    --surface: #ffffff;
+    --surface-2: #eef2f7;
+    --text: #172033;
+    --muted: #68758a;
+    --border: #dce2eb;
+    --primary: #315efb;
+    --primary-dark: #2448c8;
+    --success: #159570;
+    --warning: #d58a00;
+    --danger: #d64545;
+    --shadow: 0 12px 35px rgba(30, 45, 75, 0.08);
+}
+
+[data-theme="dark"] {
+    --bg: #0d1117;
+    --surface: #151b24;
+    --surface-2: #1d2632;
+    --text: #f2f5fa;
+    --muted: #9aa8ba;
+    --border: #2b3645;
+    --primary: #6d8cff;
+    --primary-dark: #8ba3ff;
+    --success: #3bd39e;
+    --warning: #f2b84b;
+    --danger: #ff7070;
+    --shadow: 0 12px 35px rgba(0,0,0,.25);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    transition: .25s;
+}
+
+button,
+textarea,
+input,
+select {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+.app {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* SIDEBAR */
+
+.sidebar {
+    width: 250px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 22px 16px;
+    position: fixed;
+    height: 100vh;
+    left: 0;
+    top: 0;
+    z-index: 20;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 4px 10px 26px;
+}
+
+.logo-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: var(--primary);
+    color: white;
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+}
+
+.logo-text strong {
+    display: block;
+    font-size: 15px;
+}
+
+.logo-text span {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.nav {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.nav button {
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    padding: 12px 13px;
+    border-radius: 10px;
+    text-align: left;
+    display: flex;
+    gap: 11px;
+    align-items: center;
+    transition: .2s;
+}
+
+.nav button:hover,
+.nav button.active {
+    background: var(--surface-2);
+    color: var(--text);
+}
+
+.nav button.active {
+    color: var(--primary);
+    font-weight: 700;
+}
+
+.sidebar-bottom {
+    position: absolute;
+    bottom: 20px;
+    left: 16px;
+    right: 16px;
+}
+
+.help-btn {
+    width: 100%;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 11px;
+}
+
+/* MAIN */
+
+.main {
+    margin-left: 250px;
+    width: calc(100% - 250px);
+}
+
+.topbar {
+    height: 72px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 34px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+}
+
+.topbar-title {
+    font-weight: 700;
+}
+
+.theme-btn {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    border-radius: 9px;
+    padding: 9px 13px;
+}
+
+.content {
+    max-width: 1200px;
+    margin: auto;
+    padding: 36px;
+}
+
+.screen {
+    display: none;
+}
+
+.screen.active {
+    display: block;
+    animation: fade .25s ease;
+}
+
+@keyframes fade {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+h1 {
+    margin: 0;
+    font-size: 32px;
+}
+
+h2 {
+    margin-top: 0;
+}
+
+.subtitle {
+    color: var(--muted);
+    margin-top: 8px;
+}
+
+/* EXPLAINER */
+
+.explainer {
+    margin: 25px 0;
+    background: linear-gradient(135deg, var(--primary), #6f86ff);
+    color: white;
+    border-radius: 18px;
+    padding: 25px;
+    box-shadow: var(--shadow);
+}
+
+.explainer h2 {
+    margin-bottom: 8px;
+}
+
+.explainer p {
+    margin: 0;
+    line-height: 1.6;
+    max-width: 850px;
+}
+
+.explainer-actions {
+    margin-top: 18px;
+    display: flex;
+    gap: 10px;
+}
+
+.white-btn {
+    border: 0;
+    background: white;
+    color: #2448c8;
+    padding: 10px 15px;
+    border-radius: 9px;
+    font-weight: 700;
+}
+
+/* CARDS */
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+}
+
+.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+}
+
+.stat-number {
+    font-size: 30px;
+    font-weight: 800;
+}
+
+.stat-label {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.card-title {
+    font-weight: 750;
+    margin-bottom: 10px;
+}
+
+/* INPUT */
+
+.input-box {
+    margin-top: 25px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 17px;
+    padding: 22px;
+    box-shadow: var(--shadow);
+}
+
+textarea {
+    width: 100%;
+    min-height: 220px;
+    resize: vertical;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    color: var(--text);
+    border-radius: 12px;
+    padding: 15px;
+    outline: none;
+}
+
+textarea:focus,
+input:focus,
+select:focus {
+    border-color: var(--primary);
+}
+
+.upload-zone {
+    margin-top: 12px;
+    padding: 20px;
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    text-align: center;
+    color: var(--muted);
+    transition: .2s;
+}
+
+.upload-zone.drag {
+    border-color: var(--primary);
+    background: var(--surface-2);
+}
+
+.primary {
+    background: var(--primary);
+    color: white;
+    border: 0;
+    border-radius: 9px;
+    padding: 11px 17px;
+    font-weight: 700;
+}
+
+.primary:hover {
+    background: var(--primary-dark);
+}
+
+.secondary {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 10px 15px;
+}
+
+/* CLAIMS */
+
+.toolbar {
+    display: flex;
+    gap: 10px;
+    margin: 22px 0;
+}
+
+.toolbar input,
+.toolbar select {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    border-radius: 9px;
+    padding: 10px 13px;
+}
+
+.toolbar input {
+    flex: 1;
+}
+
+.claim-list {
+    display: grid;
+    gap: 13px;
+}
+
+.claim {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.claim-text {
+    font-weight: 650;
+    line-height: 1.5;
+}
+
+.claim-meta {
+    margin-top: 10px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.badge {
+    padding: 5px 9px;
+    border-radius: 99px;
+    background: var(--surface-2);
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.badge.success {
+    color: var(--success);
+}
+
+.badge.warning {
+    color: var(--warning);
+}
+
+.badge.danger {
+    color: var(--danger);
+}
+
+.score {
+    font-size: 26px;
+    font-weight: 800;
+}
+
+/* INTERVIEW */
+
+.interview-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 20px;
+}
+
+.claim-sidebar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 15px;
+    padding: 15px;
+}
+
+.claim-choice {
+    width: 100%;
+    text-align: left;
+    border: 0;
+    background: transparent;
+    color: var(--text);
+    padding: 12px;
+    border-radius: 9px;
+    margin-bottom: 5px;
+}
+
+.claim-choice.active,
+.claim-choice:hover {
+    background: var(--surface-2);
+}
+
+.interview-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.interview-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.interview-body {
+    min-height: 420px;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+}
+
+.message {
+    max-width: 80%;
+    padding: 14px 16px;
+    border-radius: 13px;
+    margin-bottom: 13px;
+    line-height: 1.55;
+}
+
+.ai {
+    background: var(--surface-2);
+    align-self: flex-start;
+}
+
+.user {
+    background: var(--primary);
+    color: white;
+    align-self: flex-end;
+}
+
+.interview-input {
+    display: flex;
+    gap: 10px;
+    padding: 15px;
+    border-top: 1px solid var(--border);
+}
+
+.interview-input textarea {
+    min-height: 70px;
+}
+
+/* REPORT */
+
+.report-score {
+    text-align: center;
+    padding: 30px;
+}
+
+.big-score {
+    font-size: 68px;
+    font-weight: 900;
+}
+
+.progress {
+    height: 10px;
+    background: var(--surface-2);
+    border-radius: 99px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.progress span {
+    display: block;
+    height: 100%;
+    background: var(--primary);
+}
+
+.dimension {
+    margin-bottom: 18px;
+}
+
+.dimension-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+/* MODAL */
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.55);
+    display: none;
+    place-items: center;
+    z-index: 100;
+    padding: 20px;
+}
+
+.modal.show {
+    display: grid;
+}
+
+.modal-card {
+    max-width: 700px;
+    width: 100%;
+    background: var(--surface);
+    color: var(--text);
+    border-radius: 18px;
+    padding: 28px;
+    max-height: 90vh;
+    overflow: auto;
+}
+
+.close {
+    float: right;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    font-size: 22px;
+}
+
+/* EMPTY */
+
+.empty {
+    padding: 55px 20px;
+    text-align: center;
+    background: var(--surface);
+    border: 1px dashed var(--border);
+    border-radius: 15px;
+}
+
+.empty-icon {
+    font-size: 38px;
+    margin-bottom: 10px;
+}
+
+.ai-loading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--muted);
+}
+
+.ai-loading::after {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--primary);
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: .25; transform: scale(.8); }
+    50% { opacity: 1; transform: scale(1); }
+}
+
+.app-footer {
+    margin: 35px 36px 20px;
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    text-align: center;
+    font-size: 13px;
+}
+
+/* TOAST */
+
+.toast {
+    position: fixed;
+    right: 25px;
+    bottom: 25px;
+    background: var(--text);
+    color: var(--bg);
+    padding: 13px 18px;
+    border-radius: 10px;
+    display: none;
+    z-index: 200;
+}
+
+/* RESPONSIVE */
+
+@media(max-width: 850px) {
+    .sidebar {
+        width: 70px;
+        padding: 15px 8px;
+    }
+
+    .logo-text,
+    .nav span,
+    .sidebar-bottom {
+        display: none;
+    }
+
+    .logo {
+        justify-content: center;
+        padding-bottom: 20px;
+    }
+
+    .main {
+        margin-left: 70px;
+        width: calc(100% - 70px);
+    }
+
+    .content {
+        padding: 22px;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+    }
+
+    .interview-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .claim-sidebar {
+        display: none;
+    }
+}
+
+@media(max-width: 560px) {
+    h1 {
+        font-size: 26px;
+    }
+
+    .topbar {
+        padding: 0 15px;
+    }
+
+    .content {
+        padding: 16px;
+    }
+
+    .claim {
+        flex-direction: column;
+    }
+
+    .interview-input {
+        flex-direction: column;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+
+    <div class="logo">
+        <div class="logo-icon">D</div>
+        <div class="logo-text">
+            <strong>Defend Your Experience</strong>
+            <span>AI Interview Defense Coach</span>
+        </div>
+    </div>
+
+    <nav class="nav">
+
+        <button class="active" data-screen="dashboard">
+            ◉ <span>Dashboard</span>
+        </button>
+
+        <button data-screen="claims">
+            ◆ <span>My Claims</span>
+        </button>
+
+        <button data-screen="interview">
+            ◇ <span>Defense Interview</span>
+        </button>
+
+        <button data-screen="report">
+            ◈ <span>Defense Report</span>
+        </button>
+
+        <button data-screen="history">
+            ▣ <span>Session History</span>
+        </button>
+
+        <button data-screen="settings">
+            ⚙ <span>Settings</span>
+        </button>
+
+    </nav>
+
+    <div class="sidebar-bottom">
+        <button class="help-btn" onclick="openHelp()">? What is this?</button>
+    </div>
+
+</aside>
+
+
+<main class="main">
+
+    <header class="topbar">
+        <div class="topbar-title" id="topTitle">
+            Dashboard
+        </div>
+
+        <button class="theme-btn" onclick="toggleTheme()">
+            ◐ Theme
+        </button>
+    </header>
+
+
+    <div class="content">
+
+
+        <!-- DASHBOARD -->
+
+        <section class="screen active" id="dashboard">
+
+            <h1>Defend Your Experience</h1>
+
+            <p class="subtitle">
+                Practice defending the claims you make about your real experience.
+            </p>
+
+
+            <div class="explainer">
+
+                <h2>How this works</h2>
+
+                <p>
+                    Add your resume, project, portfolio, research, or other real
+                    experience. The app identifies meaningful claims, challenges you
+                    with one question at a time, follows up when your answer is weak
+                    or vague, and shows you what evidence you still need.
+                </p>
+
+                <div class="explainer-actions">
+
+                    <button class="white-btn" onclick="document.getElementById('experienceInput').focus()">
+                        Add Experience
+                    </button>
+
+                    <button class="white-btn" onclick="openHelp()">
+                        What is this?
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="grid">
+
+                <div class="card">
+                    <div class="stat-number" id="claimCount">0</div>
+                    <div class="stat-label">Claims ready to defend</div>
+                </div>
+
+                <div class="card">
+                    <div class="stat-number" id="sessionCount">0</div>
+                    <div class="stat-label">Practice sessions</div>
+                </div>
+
+                <div class="card">
+                    <div class="stat-number" id="averageScore">—</div>
+                    <div class="stat-label">Average defense score</div>
+                </div>
+
+            </div>
+
+
+            <div class="input-box">
+
+                <div class="card-title">
+                    Add your real experience
+                </div>
+
+                <p class="subtitle">
+                    Paste a resume section, project description, portfolio text,
+                    research summary, or any experience you expect to discuss.
+                </p>
+
+                <textarea
+                    id="experienceInput"
+                    placeholder="Example:
+
+Built a full-stack project using JavaScript and Node.js.
+Improved page loading performance by optimizing API requests.
+Worked with a team of four students...
+"></textarea>
+
+
+                <div
+                    class="upload-zone"
+                    id="uploadZone"
+                    onclick="document.getElementById('fileInput').click()"
+                >
+                    <strong>Drop a text file here</strong>
+                    <br>
+                    or click to choose a file
+
+                    <input
+                        id="fileInput"
+                        type="file"
+                        accept=".txt,.md,.csv"
+                        hidden
+                    >
+                </div>
+
+                <br>
+
+                <button class="primary" onclick="extractClaims()">
+                    Extract Claims
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- CLAIMS -->
+
+        <section class="screen" id="claims">
+
+            <h1>My Claims</h1>
+
+            <p class="subtitle">
+                These are the statements from your experience that you may need to defend.
+            </p>
+
+            <div class="toolbar">
+
+                <input
+                    id="claimSearch"
+                    placeholder="Search claims..."
+                    oninput="renderClaims()"
+                >
+
+                <select id="claimFilter" onchange="renderClaims()">
+                    <option value="all">All</option>
+                    <option value="strong">Strong</option>
+                    <option value="developing">Developing</option>
+                    <option value="needs-evidence">Needs evidence</option>
+                </select>
+
+            </div>
+
+            <div class="claim-list" id="claimList"></div>
+
+        </section>
+
+
+        <!-- INTERVIEW -->
+
+        <section class="screen" id="interview">
+
+            <h1>Defense Interview</h1>
+
+            <p class="subtitle">
+                Answer one question at a time. Your answer determines what the AI asks next.
+            </p>
+
+            <br>
+
+            <div class="interview-layout">
+
+                <aside class="claim-sidebar">
+
+                    <div class="card-title">
+                        Claims in focus
+                    </div>
+
+                    <div id="interviewClaims"></div>
+
+                </aside>
+
+
+                <div class="interview-panel">
+
+                    <div class="interview-header">
+
+                        <strong id="activeClaimTitle">
+                            Select a claim
+                        </strong>
+
+                        <p
+                            class="subtitle"
+                            id="activeClaimText"
+                        ></p>
+
+                    </div>
+
+
+                    <div
+                        class="interview-body"
+                        id="conversation"
+                    >
+
+                        <div class="empty">
+
+                            <div class="empty-icon">🎯</div>
+
+                            <strong>
+                                Choose a claim to start defending it.
+                            </strong>
+
+                            <p class="subtitle">
+                                The AI will challenge your ownership, evidence,
+                                decisions, results, trade-offs and technical understanding.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="interview-input">
+
+                        <textarea
+                            id="answerInput"
+                            placeholder="Type your answer..."
+                        ></textarea>
+
+                        <button
+                            class="primary"
+                            onclick="submitAnswer()"
+                        >
+                            Send
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- REPORT -->
+
+        <section class="screen" id="report">
+
+            <h1>Defense Report</h1>
+
+            <p class="subtitle">
+                See which experiences are well defended and which need stronger evidence.
+            </p>
+
+            <br>
+
+            <div id="reportContent">
+
+                <div class="empty">
+
+                    <div class="empty-icon">📊</div>
+
+                    <strong>
+                        No defense report yet.
+                    </strong>
+
+                    <p class="subtitle">
+                        Complete a defense session to generate your report.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- HISTORY -->
+
+        <section class="screen" id="history">
+
+            <h1>Session History</h1>
+
+            <p class="subtitle">
+                Review previous defense sessions and track your improvement.
+            </p>
+
+            <br>
+
+            <div id="historyList"></div>
+
+        </section>
+
+
+        <!-- SETTINGS -->
+
+        <section class="screen" id="settings">
+
+            <h1>Settings</h1>
+
+            <p class="subtitle">
+                Manage your local data, theme and exports.
+            </p>
+
+            <br>
+
+            <div class="card">
+
+                <h3>Appearance</h3>
+
+                <p class="subtitle">
+                    Choose the interface theme.
+                </p>
+
+                <button class="secondary" onclick="toggleTheme()">
+                    Toggle Light / Dark Mode
+                </button>
+
+            </div>
+
+            <br>
+
+            <div class="card">
+
+                <h3>Export your data</h3>
+
+                <p class="subtitle">
+                    Download your claims and sessions as a JSON file.
+                </p>
+
+                <button class="primary" onclick="exportData()">
+                    Export Data
+                </button>
+
+            </div>
+
+            <br>
+
+            <div class="card">
+
+                <h3>Reset application</h3>
+
+                <p class="subtitle">
+                    Permanently remove locally saved claims and sessions.
+                </p>
+
+                <button
+                    class="secondary"
+                    onclick="resetData()"
+                    style="color:var(--danger)"
+                >
+                    Reset All Data
+                </button>
+
+            </div>
+
+        </section>
+
+    </div>
+
+    <footer class="app-footer">Built with Claude as part of the AB Talks 60-Day Claude AI Challenge.</footer>
+
+</main>
+
+</div>
+
+
+<!-- HELP MODAL -->
+
+<div class="modal" id="helpModal">
+
+    <div class="modal-card">
+
+        <button class="close" onclick="closeHelp()">×</button>
+
+        <h2>What is Defend Your Experience?</h2>
+
+        <p>
+            Defend Your Experience is an AI interview-defense coach.
+            It is designed to help students confidently explain and defend
+            the experience they put on their resumes, portfolios and project
+            descriptions.
+        </p>
+
+        <h3>Dashboard</h3>
+
+        <p>
+            Add your real experience and begin extracting claims.
+        </p>
+
+        <h3>My Claims</h3>
+
+        <p>
+            Review the meaningful statements that an interviewer could challenge.
+        </p>
+
+        <h3>Defense Interview</h3>
+
+        <p>
+            Practice one question at a time. The next question should become
+            deeper based on your previous answer.
+        </p>
+
+        <h3>Defense Report</h3>
+
+        <p>
+            Identify strong claims, weak claims and areas where you need better
+            evidence.
+        </p>
+
+        <h3>Session History</h3>
+
+        <p>
+            Review your previous practice sessions.
+        </p>
+
+        <h3>Important principle</h3>
+
+        <p>
+            <strong>
+                Defend, don't decorate.
+            </strong>
+            The system should use your real experience as its source of truth
+            and should never invent achievements or evidence.
+        </p>
+
+    </div>
+
+</div>
+
+
+<div class="toast" id="toast"></div>
+
+
+<script>
+
+/* =========================================================
+   APPLICATION STATE
+========================================================= */
+
+const STORAGE_KEYS = {
+    claims: "dye_claims",
+    sessions: "dye_sessions",
+    theme: "dye_theme"
+};
+
+let claims = load(STORAGE_KEYS.claims, []);
+let sessions = load(STORAGE_KEYS.sessions, []);
+
+let activeClaim = null;
+let currentConversation = [];
+let waitingForAI = false;
+
+
+/* =========================================================
+   STORAGE
+========================================================= */
+
+function load(key, fallback) {
+
+    try {
+
+        const value = localStorage.getItem(key);
+
+        return value ? JSON.parse(value) : fallback;
+
+    } catch {
+
+        return fallback;
+
+    }
+
+}
+
+
+function save() {
+
+    localStorage.setItem(
+        STORAGE_KEYS.claims,
+        JSON.stringify(claims)
+    );
+
+    localStorage.setItem(
+        STORAGE_KEYS.sessions,
+        JSON.stringify(sessions)
+    );
+
+}
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+const navButtons = document.querySelectorAll(".nav button");
+
+navButtons.forEach(button => {
+
+    button.addEventListener("click", () => {
+
+        const screen = button.dataset.screen;
+
+        showScreen(screen);
+
+    });
+
+});
+
+
+function showScreen(screen) {
+
+    document.querySelectorAll(".screen").forEach(el => {
+        el.classList.remove("active");
+    });
+
+    const target = document.getElementById(screen);
+
+    if (target) {
+        target.classList.add("active");
+    }
+
+    navButtons.forEach(button => {
+
+        button.classList.toggle(
+            "active",
+            button.dataset.screen === screen
+        );
+
+    });
+
+    const titles = {
+        dashboard: "Dashboard",
+        claims: "My Claims",
+        interview: "Defense Interview",
+        report: "Defense Report",
+        history: "Session History",
+        settings: "Settings"
+    };
+
+    document.getElementById("topTitle").textContent =
+        titles[screen] || "Defend Your Experience";
+
+    if (screen === "claims") {
+        renderClaims();
+    }
+
+    if (screen === "interview") {
+        renderInterviewClaims();
+    }
+
+    if (screen === "history") {
+        renderHistory();
+    }
+
+    if (screen === "report") {
+        renderReport();
+    }
+
+}
+
+
+/* =========================================================
+   THEME
+========================================================= */
+
+function toggleTheme() {
+
+    const body = document.body;
+
+    const dark =
+        body.getAttribute("data-theme") === "dark";
+
+    if (dark) {
+
+        body.removeAttribute("data-theme");
+
+        localStorage.setItem(
+            STORAGE_KEYS.theme,
+            "light"
+        );
+
+    } else {
+
+        body.setAttribute(
+            "data-theme",
+            "dark"
+        );
+
+        localStorage.setItem(
+            STORAGE_KEYS.theme,
+            "dark"
+        );
+
+    }
+
+}
+
+
+if (
+    localStorage.getItem(STORAGE_KEYS.theme) === "dark"
+) {
+    document.body.setAttribute("data-theme", "dark");
+}
+
+
+/* =========================================================
+   DASHBOARD
+========================================================= */
+
+function updateDashboard() {
+
+    document.getElementById("claimCount").textContent =
+        claims.length;
+
+    document.getElementById("sessionCount").textContent =
+        sessions.length;
+
+    if (!sessions.length) {
+
+        document.getElementById("averageScore").textContent = "—";
+
+        return;
+
+    }
+
+    const total = sessions.reduce(
+        (sum, session) =>
+            sum + Number(session.score || 0),
+        0
+    );
+
+    const average = Math.round(
+        total / sessions.length
+    );
+
+    document.getElementById("averageScore").textContent =
+        average;
+
+}
+
+updateDashboard();
+
+
+/* =========================================================
+   FILE INPUT
+========================================================= */
+
+const fileInput =
+    document.getElementById("fileInput");
+
+fileInput.addEventListener("change", event => {
+
+    const file = event.target.files[0];
+
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = event => {
+
+        document.getElementById(
+            "experienceInput"
+        ).value = event.target.result;
+
+        toast("Experience loaded.");
+
+    };
+
+    reader.readAsText(file);
+
+});
+
+
+const uploadZone =
+    document.getElementById("uploadZone");
+
+uploadZone.addEventListener(
+    "dragover",
+    event => {
+
+        event.preventDefault();
+
+        uploadZone.classList.add("drag");
+
+    }
+);
+
+uploadZone.addEventListener(
+    "dragleave",
+    () => {
+
+        uploadZone.classList.remove("drag");
+
+    }
+);
+
+uploadZone.addEventListener(
+    "drop",
+    event => {
+
+        event.preventDefault();
+
+        uploadZone.classList.remove("drag");
+
+        const file = event.dataTransfer.files[0];
+
+        if (!file) return;
+
+        const reader = new FileReader();
+
+        reader.onload = event => {
+
+            document.getElementById(
+                "experienceInput"
+            ).value = event.target.result;
+
+            toast("Experience loaded.");
+
+        };
+
+        reader.readAsText(file);
+
+    }
+);
+
+
+/* =========================================================
+   CLAIM EXTRACTION
+========================================================= */
+
+async function extractClaims() {
+
+    const text =
+        document.getElementById("experienceInput").value.trim();
+
+    if (!text) {
+
+        toast("Add your experience first.");
+
+        return;
+
+    }
+
+    /*
+        For the initial UI, local extraction provides a safe fallback.
+        The Anthropic Messages API can replace this function in the
+        intended artifact environment.
+    */
+
+    const generated =
+        localClaimExtraction(text);
+
+    claims = generated;
+
+    save();
+
+    updateDashboard();
+
+    renderClaims();
+
+    showScreen("claims");
+
+    toast(
+        `${claims.length} claims extracted.`
+    );
+
+}
+
+
+function localClaimExtraction(text) {
+
+    const lines = text
+        .split(/\n+/)
+        .map(line =>
+            line
+                .replace(/^[-•*]\s*/, "")
+                .trim()
+        )
+        .filter(Boolean);
+
+    const meaningful =
+        lines.filter(line =>
+            line.length >= 20
+        );
+
+    const result = [];
+
+    meaningful.forEach((line, index) => {
+
+        const type =
+            classifyClaim(line);
+
+        result.push({
+
+            id:
+                "claim_" +
+                Date.now() +
+                "_" +
+                index,
+
+            text: line,
+
+            type,
+
+            status: "developing",
+
+            score: 50,
+
+            evidence: "",
+
+            createdAt:
+                new Date().toISOString(),
+
+            updatedAt:
+                new Date().toISOString()
+
+        });
+
+    });
+
+    return result.slice(0, 30);
+
+}
+
+
+function classifyClaim(text) {
+
+    const value =
+        text.toLowerCase();
+
+    if (
+        value.includes("built") ||
+        value.includes("developed") ||
+        value.includes("created") ||
+        value.includes("implemented")
+    ) {
+        return "Project / Ownership";
+    }
+
+    if (
+        value.includes("improv") ||
+        value.includes("optimized") ||
+        value.includes("reduced") ||
+        value.includes("increased") ||
+        value.includes("%")
+    ) {
+        return "Impact / Result";
+    }
+
+    if (
+        value.includes("team") ||
+        value.includes("led") ||
+        value.includes("managed") ||
+        value.includes("collabor")
+    ) {
+        return "Team / Leadership";
+    }
+
+    if (
+        value.includes("javascript") ||
+        value.includes("python") ||
+        value.includes("java") ||
+        value.includes("api") ||
+        value.includes("database") ||
+        value.includes("algorithm")
+    ) {
+        return "Technical";
+    }
+
+    return "Experience";
+
+}
+
+
+/* =========================================================
+   CLAIM RENDERING
+========================================================= */
+
+function renderClaims() {
+
+    const list =
+        document.getElementById("claimList");
+
+    const search =
+        document.getElementById("claimSearch")
+            .value
+            .toLowerCase();
+
+    const filter =
+        document.getElementById("claimFilter")
+            .value;
+
+    const filtered =
+        claims.filter(claim => {
+
+            const matchesSearch =
+                claim.text
+                    .toLowerCase()
+                    .includes(search);
+
+            const matchesFilter =
+                filter === "all" ||
+                claim.status === filter;
+
+            return matchesSearch && matchesFilter;
+
+        });
+
+
+    if (!filtered.length) {
+
+        list.innerHTML = `
+            <div class="empty">
+                <div class="empty-icon">◇</div>
+                <strong>No claims found.</strong>
+                <p class="subtitle">
+                    Add experience from the Dashboard to create claims.
+                </p>
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    list.innerHTML =
+        filtered.map(claim => {
+
+            const statusClass =
+                claim.status === "strong"
+                    ? "success"
+                    : claim.status === "needs-evidence"
+                        ? "danger"
+                        : "warning";
+
+            return `
+
+                <div class="claim">
+
+                    <div>
+
+                        <div class="claim-text">
+                            ${escapeHTML(claim.text)}
+                        </div>
+
+                        <div class="claim-meta">
+
+                            <span class="badge">
+                                ${escapeHTML(claim.type)}
+                            </span>
+
+                            <span class="badge ${statusClass}">
+                                ${formatStatus(claim.status)}
+                            </span>
+
+                            ${
+                                claim.evidence
+                                ? `
+                                <span class="badge success">
+                                    Evidence captured
+                                </span>
+                                `
+                                : ""
+                            }
+
+                        </div>
+
+                    </div>
+
+                    <div style="text-align:right">
+
+                        <div class="score">
+                            ${claim.score}
+                        </div>
+
+                        <small class="stat-label">
+                            defense score
+                        </small>
+
+                        <br><br>
+
+                        <button
+                            class="primary"
+                            onclick="startDefense('${claim.id}')"
+                        >
+                            Practice
+                        </button>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }).join("");
+
+}
+
+
+function formatStatus(status) {
+
+    const labels = {
+
+        strong: "Strong",
+
+        developing: "Developing",
+
+        "needs-evidence":
+            "Needs evidence",
+
+        untested:
+            "Untested"
+
+    };
+
+    return labels[status] || status;
+
+}
+
+
+/* =========================================================
+   INTERVIEW
+========================================================= */
+
+function renderInterviewClaims() {
+
+    const container =
+        document.getElementById("interviewClaims");
+
+    if (!claims.length) {
+
+        container.innerHTML = `
+            <p class="subtitle">
+                No claims yet.
+            </p>
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        claims.map(claim => `
+
+            <button
+                class="claim-choice ${
+                    activeClaim &&
+                    activeClaim.id === claim.id
+                        ? "active"
+                        : ""
+                }"
+                onclick="startDefense('${claim.id}')"
+            >
+
+                ${escapeHTML(
+                    truncate(claim.text, 42)
+                )}
+
+            </button>
+
+        `).join("");
+
+}
+
+
+function startDefense(id) {
+
+    const claim =
+        claims.find(
+            item => item.id === id
+        );
+
+    if (!claim) return;
+
+    activeClaim = claim;
+
+    currentConversation = [];
+
+    document.getElementById(
+        "activeClaimTitle"
+    ).textContent = "Defend this claim";
+
+    document.getElementById(
+        "activeClaimText"
+    ).textContent = claim.text;
+
+    document.getElementById(
+        "conversation"
+    ).innerHTML = "";
+
+    renderInterviewClaims();
+
+    showScreen("interview");
+
+    addAIMessage(
+        createOpeningQuestion(claim)
+    );
+
+}
+
+
+function createOpeningQuestion(claim) {
+
+    return `What exactly did you personally do in this experience, and how would you prove it if an interviewer challenged the claim: "${claim.text}"?`;
+
+}
+
+
+function addAIMessage(text) {
+
+    const conversation =
+        document.getElementById("conversation");
+
+    const message =
+        document.createElement("div");
+
+    message.className = "message ai";
+
+    message.textContent = text;
+
+    conversation.appendChild(message);
+
+    conversation.scrollTop =
+        conversation.scrollHeight;
+
+    currentConversation.push({
+        role: "assistant",
+        content: text
+    });
+
+}
+
+
+function addUserMessage(text) {
+
+    const conversation =
+        document.getElementById("conversation");
+
+    const message =
+        document.createElement("div");
+
+    message.className = "message user";
+
+    message.textContent = text;
+
+    conversation.appendChild(message);
+
+    conversation.scrollTop =
+        conversation.scrollHeight;
+
+    currentConversation.push({
+        role: "user",
+        content: text
+    });
+
+}
+
+
+/* =========================================================
+   ADAPTIVE FOLLOW-UP
+========================================================= */
+
+async function submitAnswer() {
+
+    if (!activeClaim || waitingForAI) {
+
+        if (!activeClaim) {
+            toast("Select a claim first.");
+        }
+
+        return;
+
+    }
+
+    const input =
+        document.getElementById("answerInput");
+
+    const answer =
+        input.value.trim();
+
+    if (!answer) {
+        toast("Write an answer first.");
+        return;
+    }
+
+    addUserMessage(answer);
+    input.value = "";
+    waitingForAI = true;
+
+    const questionBubble =
+        document.createElement("div");
+    questionBubble.className = "message ai ai-loading";
+    questionBubble.textContent = "Analyzing your answer...";
+
+    const conversation =
+        document.getElementById("conversation");
+
+    conversation.appendChild(questionBubble);
+    conversation.scrollTop = conversation.scrollHeight;
+
+    try {
+        const question =
+            await generateAdaptiveQuestion(
+                activeClaim,
+                answer
+            );
+
+        questionBubble.remove();
+        currentConversation = currentConversation.filter(
+            item => item.content !== "Analyzing your answer..."
+        );
+        addAIMessage(question);
+        evaluateAnswer(answer);
+    } catch (error) {
+        console.error(error);
+        questionBubble.remove();
+        addAIMessage(createSafeFallbackQuestion(activeClaim, answer));
+        evaluateAnswer(answer);
+        toast("AI temporarily unavailable. Safe fallback question used.");
+    } finally {
+        waitingForAI = false;
+    }
+
+}
+
+
+async function generateAdaptiveQuestion(claim, answer) {
+
+    const apiUrl = "https://api.anthropic.com/v1/messages";
+    const model = "claude-3-5-haiku-latest";
+
+    const priorTurns = currentConversation
+        .slice(-8)
+        .map(turn => `${turn.role}: ${turn.content}`)
+        .join("\n");
+
+    const systemPrompt = `You are a skeptical but fair interviewer helping a college student defend real experience.
+Use only facts supplied by the user. Never invent achievements, metrics, technologies, responsibilities, results, or evidence.
+Ask exactly ONE follow-up question.
+The question must respond directly to the latest answer and become more specific or deeper when appropriate.
+Probe one useful dimension at a time: ownership, evidence, outcome, decision, technical depth, trade-off, or reflection.
+Do not praise, coach, answer the question yourself, or ask multiple questions.
+Return only the question text.`;
+
+    const userPrompt = `Claim to defend:\n${claim.text}\n\nLatest answer:\n${answer}\n\nRelevant prior conversation:\n${priorTurns || "None"}`;
+
+    const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "anthropic-version": "2023-06-01"
+        },
+        body: JSON.stringify({
+            model,
+            max_tokens: 180,
+            temperature: 0.3,
+            system: systemPrompt,
+            messages: [
+                {
+                    role: "user",
+                    content: userPrompt
+                }
+            ]
+        })
+    });
+
+    if (!response.ok) {
+        throw new Error(`Anthropic request failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const text = data?.content?.find(item => item.type === "text")?.text?.trim();
+
+    if (!text) {
+        throw new Error("Malformed AI response");
+    }
+
+    return text.replace(/^[-*]\s*/, "").trim();
+}
+
+
+function createSafeFallbackQuestion(claim, answer) {
+
+    if (answer.length < 50) {
+        return `Can you give one specific example of what you personally did for "${claim.text}"?`;
+    }
+
+    if (!hasEvidence(answer)) {
+        return "What concrete evidence supports that answer? Give one measurable result, test, example, or before-and-after comparison you can honestly defend.";
+    }
+
+    if (!hasOwnership(answer)) {
+        return "Which part was specifically yours rather than the team's? Explain your personal contribution.";
+    }
+
+    if (!hasTechnicalDepth(answer)) {
+        return "Why did you choose that approach, and what alternative or trade-off did you consider?";
+    }
+
+    return "What was the hardest part of this experience, and what would you do differently next time?";
+}
+
+
+function hasEvidence(answer) {
+
+    return (
+        /\d/.test(answer) ||
+        /%/.test(answer) ||
+        /result|metric|measured|test|evidence|before|after|faster|reduced|increased/i
+            .test(answer)
+    );
+
+}
+
+
+function hasOwnership(answer) {
+
+    return /i |my |personally|implemented|built|designed|created|optimized|developed/i
+        .test(answer);
+
+}
+
+
+function hasTechnicalDepth(answer) {
+
+    return /because|trade.?off|alternative|architecture|algorithm|api|database|performance|complexity|decision|approach/i
+        .test(answer);
+
+}
+
+
+/* =========================================================
+   EVALUATION
+========================================================= */
+
+function evaluateAnswer(answer) {
+
+    if (!activeClaim) return;
+
+    let score = 45;
+
+    if (answer.length >= 80) score += 10;
+
+    if (hasEvidence(answer)) score += 15;
+
+    if (hasOwnership(answer)) score += 10;
+
+    if (hasTechnicalDepth(answer)) score += 10;
+
+    score = Math.min(score, 100);
+
+    activeClaim.score =
+        Math.round(
+            (activeClaim.score + score) / 2
+        );
+
+    if (activeClaim.score >= 75) {
+
+        activeClaim.status = "strong";
+
+    } else if (
+        activeClaim.score >= 50
+    ) {
+
+        activeClaim.status = "developing";
+
+    } else {
+
+        activeClaim.status =
+            "needs-evidence";
+
+    }
+
+    activeClaim.updatedAt =
+        new Date().toISOString();
+
+    save();
+
+    updateDashboard();
+
+}
+
+
+/* =========================================================
+   REPORT
+========================================================= */
+
+function renderReport() {
+
+    const container =
+        document.getElementById("reportContent");
+
+    if (!claims.length) {
+
+        container.innerHTML = `
+            <div class="empty">
+                <div class="empty-icon">📊</div>
+                <strong>No defense report yet.</strong>
+                <p class="subtitle">
+                    Add experience and practice your claims first.
+                </p>
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    const overall =
+        Math.round(
+            claims.reduce(
+                (sum, claim) =>
+                    sum + Number(claim.score || 0),
+                0
+            ) / claims.length
+        );
+
+
+    const strong =
+        claims.filter(
+            c => c.status === "strong"
+        ).length;
+
+    const developing =
+        claims.filter(
+            c => c.status === "developing"
+        ).length;
+
+    const needsEvidence =
+        claims.filter(
+            c => c.status === "needs-evidence"
+        ).length;
+
+
+    container.innerHTML = `
+
+        <div class="card report-score">
+
+            <div class="stat-label">
+                Overall defense strength
+            </div>
+
+            <div class="big-score">
+                ${overall}
+            </div>
+
+            <div class="progress">
+                <span style="width:${overall}%"></span>
+            </div>
+
+            <p class="subtitle">
+                Based on the claims currently practiced.
+            </p>
+
+        </div>
+
+        <br>
+
+        <div class="grid">
+
+            <div class="card">
+                <div class="stat-number">
+                    ${strong}
+                </div>
+                <div class="stat-label">
+                    Strong claims
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="stat-number">
+                    ${developing}
+                </div>
+                <div class="stat-label">
+                    Developing claims
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="stat-number">
+                    ${needsEvidence}
+                </div>
+                <div class="stat-label">
+                    Claims needing evidence
+                </div>
+            </div>
+
+        </div>
+
+        <br>
+
+        <div class="card">
+
+            <h2>What to strengthen next</h2>
+
+            ${
+                claims
+                    .filter(c =>
+                        c.status !== "strong"
+                    )
+                    .slice(0, 6)
+                    .map(c => `
+
+                        <div class="dimension">
+
+                            <div class="dimension-row">
+
+                                <strong>
+                                    ${escapeHTML(
+                                        truncate(c.text, 80)
+                                    )}
+                                </strong>
+
+                                <span>
+                                    ${c.score}/100
+                                </span>
+
+                            </div>
+
+                            <div class="progress">
+
+                                <span
+                                    style="width:${c.score}%"
+                                ></span>
+
+                            </div>
+
+                            <p class="subtitle">
+
+                                ${
+                                    c.status ===
+                                    "needs-evidence"
+
+                                    ? "Add concrete evidence and measurable proof."
+
+                                    : "Practice explaining your ownership, reasoning and result."
+                                }
+
+                            </p>
+
+                        </div>
+
+                    `).join("")
+
+                ||
+
+                `<p class="subtitle">
+                    Your current claims are strongly defended.
+                    Continue practicing to maintain confidence.
+                </p>`
+
+            }
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================================
+   SESSION HISTORY
+========================================================= */
+
+function saveSession() {
+
+    if (!activeClaim) return;
+
+    const session = {
+
+        id:
+            "session_" +
+            Date.now(),
+
+        claimIds:
+            [activeClaim.id],
+
+        startedAt:
+            new Date().toISOString(),
+
+        completedAt:
+            new Date().toISOString(),
+
+        answers:
+            currentConversation,
+
+        score:
+            activeClaim.score,
+
+        recommendations:
+            [
+                "Prepare concrete evidence.",
+                "Be clear about personal ownership.",
+                "Explain important decisions and trade-offs."
+            ]
+
+    };
+
+    sessions.unshift(session);
+
+    save();
+
+    updateDashboard();
+
+}
+
+
+function renderHistory() {
+
+    const container =
+        document.getElementById("historyList");
+
+    if (!sessions.length) {
+
+        container.innerHTML = `
+            <div class="empty">
+
+                <div class="empty-icon">▣</div>
+
+                <strong>
+                    No practice sessions yet.
+                </strong>
+
+                <p class="subtitle">
+                    Complete a defense session to see it here.
+                </p>
+
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        sessions.map(session => `
+
+            <div class="card" style="margin-bottom:12px">
+
+                <div style="
+                    display:flex;
+                    justify-content:space-between;
+                    gap:20px;
+                    align-items:center;
+                ">
+
+                    <div>
+
+                        <strong>
+                            Defense Session
+                        </strong>
+
+                        <p class="subtitle">
+                            ${new Date(
+                                session.startedAt
+                            ).toLocaleString()}
+                        </p>
+
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            ${session.score}/100
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        `).join("");
+
+}
+
+
+/* =========================================================
+   HELP
+========================================================= */
+
+function openHelp() {
+
+    document
+        .getElementById("helpModal")
+        .classList.add("show");
+
+}
+
+
+function closeHelp() {
+
+    document
+        .getElementById("helpModal")
+        .classList.remove("show");
+
+}
+
+
+/* =========================================================
+   EXPORT
+========================================================= */
+
+function exportData() {
+
+    const data = {
+
+        product:
+            "Defend Your Experience",
+
+        exportedAt:
+            new Date().toISOString(),
+
+        claims,
+
+        sessions
+
+    };
+
+    const blob =
+        new Blob(
+            [JSON.stringify(data, null, 2)],
+            { type: "application/json" }
+        );
+
+    const url =
+        URL.createObjectURL(blob);
+
+    const a =
+        document.createElement("a");
+
+    a.href = url;
+
+    a.download =
+        "defend-your-experience-data.json";
+
+    a.click();
+
+    URL.revokeObjectURL(url);
+
+    toast("Data exported.");
+
+}
+
+
+/* =========================================================
+   RESET
+========================================================= */
+
+function resetData() {
+
+    const confirmed =
+        confirm(
+            "Are you sure? This will remove all locally saved claims and sessions."
+        );
+
+    if (!confirmed) return;
+
+    claims = [];
+
+    sessions = [];
+
+    save();
+
+    updateDashboard();
+
+    renderClaims();
+
+    renderHistory();
+
+    renderReport();
+
+    toast("All local data reset.");
+
+}
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function truncate(text, length) {
+
+    if (text.length <= length)
+        return text;
+
+    return text.slice(0, length) + "...";
+
+}
+
+
+function escapeHTML(text) {
+
+    return text
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+}
+
+
+function toast(message) {
+
+    const element =
+        document.getElementById("toast");
+
+    element.textContent = message;
+
+    element.style.display = "block";
+
+    clearTimeout(window.toastTimer);
+
+    window.toastTimer =
+        setTimeout(() => {
+
+            element.style.display = "none";
+
+        }, 2500);
+
+}
+
+
+/* =========================================================
+   KEYBOARD SHORTCUTS
+========================================================= */
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            event.key === "Escape"
+        ) {
+
+            closeHelp();
+
+        }
+
+        if (
+            event.ctrlKey &&
+            event.key === "/"
+        ) {
+
+            event.preventDefault();
+
+            openHelp();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   INITIAL RENDER
+========================================================= */
+
+renderClaims();
+renderHistory();
+renderReport();
+updateDashboard();
+
+</script>
+
+</body>
+</html>
