@@ -1043,8 +1043,17 @@ Worked with a team of four students...
                         <button
                             class="primary"
                             onclick="submitAnswer()"
+                            id="sendAnswerButton"
                         >
                             Send
+                        </button>
+
+                        <button
+                            class="secondary"
+                            onclick="finishDefenseSession()"
+                            id="finishSessionButton"
+                        >
+                            Finish & Save Session
                         </button>
 
                     </div>
@@ -1067,6 +1076,12 @@ Worked with a team of four students...
             </p>
 
             <br>
+
+            <div style="display:flex;justify-content:flex-end;gap:10px;margin-bottom:15px;">
+                <button class="secondary" onclick="exportReport()" id="exportReportButton">
+                    Export Report
+                </button>
+            </div>
 
             <div id="reportContent">
 
@@ -1258,8 +1273,13 @@ const STORAGE_KEYS = {
     theme: "dye_theme"
 };
 
-let claims = load(STORAGE_KEYS.claims, []);
-let sessions = load(STORAGE_KEYS.sessions, []);
+const STORAGE_VERSION = 1;
+const MAX_CLAIMS = 30;
+const MAX_SESSIONS = 100;
+const MAX_STORED_TEXT = 12000;
+
+let claims = loadClaims();
+let sessions = loadSessions();
 
 let activeClaim = null, currentSession = null;
 let currentConversation = [];
@@ -1267,40 +1287,158 @@ let waitingForAI = false;
 
 
 /* =========================================================
-   STORAGE
+   STORAGE — DAY 8
 ========================================================= */
 
-function load(key, fallback) {
-
+function safeParseStorage(key, fallback) {
     try {
-
         const value = localStorage.getItem(key);
-
-        return value ? JSON.parse(value) : fallback;
-
-    } catch {
-
+        if (!value) return fallback;
+        const parsed = JSON.parse(value);
+        return parsed ?? fallback;
+    } catch (error) {
+        console.warn(`Could not read local data for ${key}.`, error);
         return fallback;
-
     }
-
 }
 
+function cleanText(value, maxLength = MAX_STORED_TEXT) {
+    return String(value ?? "").trim().slice(0, maxLength);
+}
+
+function normalizeClaim(claim, index) {
+    if (!claim || typeof claim !== "object") return null;
+
+    const text = cleanText(claim.text);
+    if (!text) return null;
+
+    const score = Number.isFinite(Number(claim.score))
+        ? Math.min(100, Math.max(0, Number(claim.score)))
+        : 50;
+
+    return {
+        ...claim,
+        id: cleanText(claim.id, 120) || `claim_restored_${index}`,
+        text,
+        type: cleanText(claim.type, 80) || "Experience",
+        status: ["strong", "developing", "needs-evidence", "untested"].includes(claim.status)
+            ? claim.status
+            : "developing",
+        score,
+        evidence: cleanText(claim.evidence),
+        recommendations: Array.isArray(claim.recommendations)
+            ? claim.recommendations.map(item => cleanText(item, 300)).filter(Boolean).slice(0, 5)
+            : [],
+        evaluations: Array.isArray(claim.evaluations)
+            ? claim.evaluations.slice(-10)
+            : [],
+        createdAt: claim.createdAt || new Date().toISOString(),
+        updatedAt: claim.updatedAt || new Date().toISOString()
+    };
+}
+
+function normalizeSession(session, index) {
+    if (!session || typeof session !== "object") return null;
+
+    const answers = Array.isArray(session.answers)
+        ? session.answers
+            .filter(item => item && (item.role === "user" || item.role === "assistant"))
+            .map(item => ({
+                role: item.role,
+                content: cleanText(item.content)
+            }))
+            .filter(item => item.content)
+            .slice(-100)
+        : [];
+
+    const score = Number.isFinite(Number(session.score))
+        ? Math.min(100, Math.max(0, Number(session.score)))
+        : 0;
+
+    return {
+        ...session,
+        id: cleanText(session.id, 120) || `session_restored_${index}`,
+        claimIds: Array.isArray(session.claimIds)
+            ? session.claimIds.map(id => cleanText(id, 120)).filter(Boolean).slice(0, 30)
+            : [],
+        startedAt: session.startedAt || new Date().toISOString(),
+        completedAt: session.completedAt || new Date().toISOString(),
+        answers,
+        score,
+        recommendations: Array.isArray(session.recommendations)
+            ? session.recommendations.map(item => cleanText(item, 300)).filter(Boolean).slice(0, 10)
+            : [],
+        answerEvaluations: Array.isArray(session.answerEvaluations)
+            ? session.answerEvaluations.slice(-30)
+            : []
+    };
+}
+
+function loadClaims() {
+    const stored = safeParseStorage(STORAGE_KEYS.claims, []);
+    return Array.isArray(stored)
+        ? stored.map(normalizeClaim).filter(Boolean).slice(0, MAX_CLAIMS)
+        : [];
+}
+
+function loadSessions() {
+    const stored = safeParseStorage(STORAGE_KEYS.sessions, []);
+    return Array.isArray(stored)
+        ? stored.map(normalizeSession).filter(Boolean).slice(0, MAX_SESSIONS)
+        : [];
+}
 
 function save() {
+    try {
+        const normalizedClaims = claims
+            .map(normalizeClaim)
+            .filter(Boolean)
+            .slice(0, MAX_CLAIMS);
 
-    localStorage.setItem(
-        STORAGE_KEYS.claims,
-        JSON.stringify(claims)
-    );
+        const normalizedSessions = sessions
+            .map(normalizeSession)
+            .filter(Boolean)
+            .slice(0, MAX_SESSIONS);
 
-    localStorage.setItem(
-        STORAGE_KEYS.sessions,
-        JSON.stringify(sessions)
-    );
+        localStorage.setItem(
+            STORAGE_KEYS.claims,
+            JSON.stringify(normalizedClaims)
+        );
 
+        localStorage.setItem(
+            STORAGE_KEYS.sessions,
+            JSON.stringify(normalizedSessions)
+        );
+
+        claims = normalizedClaims;
+        sessions = normalizedSessions;
+
+        if (activeClaim) {
+            activeClaim = claims.find(item => item.id === activeClaim.id) || null;
+        }
+
+        return true;
+    } catch (error) {
+        console.error("Local storage save failed.", error);
+        toast("Local storage is full or unavailable. Export your data and try again.");
+        return false;
+    }
 }
 
+function storageAvailable() {
+    try {
+        const testKey = "dye_storage_test";
+        localStorage.setItem(testKey, "1");
+        localStorage.removeItem(testKey);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+if (!storageAvailable()) {
+    console.warn("Local Storage is unavailable. Changes may not survive refresh.");
+}
 
 /* =========================================================
    NAVIGATION
@@ -1881,6 +2019,14 @@ function renderInterviewClaims() {
 
 function startDefense(id) {
 
+    if (currentSession && !currentSession.saved && currentConversation.some(item => item.role === "user")) {
+        const confirmed = confirm(
+            "You have an unsaved defense session. Starting another claim will discard this session. Continue?"
+        );
+
+        if (!confirmed) return;
+    }
+
     const claim =
         claims.find(
             item => item.id === id
@@ -2168,6 +2314,17 @@ const EVALUATION_WEIGHTS = {
     technicalDepth: 10,
     tradeoff: 10,
     reflection: 10
+};
+
+const REPORT_DIMENSION_LABELS = {
+    ownership: "Ownership",
+    specificity: "Specificity",
+    evidence: "Evidence",
+    outcome: "Outcome",
+    reasoning: "Reasoning",
+    technicalDepth: "Technical depth",
+    tradeoff: "Trade-off thinking",
+    reflection: "Reflection"
 };
 
 function scoreDimension(answer, patterns, strongPatterns, label) {
@@ -2806,126 +2963,221 @@ function renderReport() {
 
 
 /* =========================================================
+   SESSION COMPLETION — DAY 8
+========================================================= */
+
+function finishDefenseSession() {
+    if (!activeClaim || !currentSession) {
+        toast("Start a defense session first.");
+        return;
+    }
+
+    if (waitingForAI) {
+        toast("Wait for the current AI response before finishing.");
+        return;
+    }
+
+    const userAnswers = currentConversation.filter(
+        item => item.role === "user"
+    );
+
+    if (!userAnswers.length) {
+        toast("Answer at least one question before saving the session.");
+        return;
+    }
+
+    if (currentSession.saved) {
+        showScreen("history");
+        return;
+    }
+
+    const saved = saveSession();
+
+    if (!saved) return;
+
+    currentSession.saved = true;
+    toast("Session saved to local history.");
+    showScreen("report");
+}
+
+
+/* =========================================================
+   REPORT EXPORT — DAY 8
+========================================================= */
+
+function getReportSnapshot() {
+    const practicedClaims = claims.filter(claim => claim.lastEvaluation);
+    const scoreSource = practicedClaims.length ? practicedClaims : claims;
+    const overall = scoreSource.length
+        ? Math.round(
+            scoreSource.reduce(
+                (sum, claim) => sum + Number(claim.lastEvaluation?.overall ?? claim.score ?? 0),
+                0
+            ) / scoreSource.length
+        )
+        : 0;
+
+    const dimensions = Object.keys(EVALUATION_WEIGHTS).map(key => {
+        const values = practicedClaims
+            .map(claim => Number(claim.lastEvaluation?.dimensions?.[key]?.score ?? 0))
+            .filter(Number.isFinite);
+
+        const average = values.length
+            ? Math.round((values.reduce((a, b) => a + b, 0) / values.length) * 10)
+            : 0;
+
+        return {
+            key,
+            label: REPORT_DIMENSION_LABELS[key],
+            score: average,
+            weight: EVALUATION_WEIGHTS[key]
+        };
+    });
+
+    return {
+        exportedAt: new Date().toISOString(),
+        overall,
+        practicedClaims: practicedClaims.length,
+        dimensions,
+        claims: claims.map(claim => ({
+            id: claim.id,
+            text: claim.text,
+            type: claim.type,
+            status: claim.status,
+            score: Number(claim.score || 0),
+            recommendations: claim.recommendations || []
+        })),
+        sessions: sessions.length
+    };
+}
+
+function exportReport() {
+    const report = getReportSnapshot();
+
+    if (!claims.length) {
+        toast("Practice a claim before exporting a report.");
+        return;
+    }
+
+    const lines = [
+        "DEFEND YOUR EXPERIENCE — DEFENSE REPORT",
+        "=".repeat(46),
+        `Generated: ${new Date(report.exportedAt).toLocaleString()}`,
+        `Overall defense strength: ${report.overall}/100`,
+        `Practiced claims: ${report.practicedClaims}`,
+        `Saved sessions: ${report.sessions}`,
+        "",
+        "DEFENSE DIMENSIONS",
+        "-".repeat(46),
+        ...report.dimensions.map(item =>
+            `${item.label}: ${item.score}/100 (weight ${item.weight}%)`
+        ),
+        "",
+        "CLAIMS",
+        "-".repeat(46),
+        ...report.claims.flatMap(claim => [
+            `${claim.status.toUpperCase()} — ${claim.score}/100`,
+            claim.text,
+            ...(claim.recommendations.length
+                ? claim.recommendations.map(item => `Recommendation: ${item}`)
+                : []),
+            ""
+        ])
+    ];
+
+    downloadFile(
+        lines.join("\n"),
+        `defend-your-experience-report-${Date.now()}.txt`,
+        "text/plain;charset=utf-8"
+    );
+
+    toast("Defense report exported.");
+}
+
+function downloadFile(content, filename, type) {
+    const blob = new Blob([content], { type });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+
+/* =========================================================
    SESSION HISTORY
 ========================================================= */
 
 function saveSession() {
 
-    if (!activeClaim) return;
+    if (!activeClaim || !currentSession) return false;
+
+    if (currentSession.saved) return true;
 
     const session = {
-
-        id:
-            "session_" +
-            Date.now(),
-
-        claimIds:
-            [activeClaim.id],
-
-        startedAt:
-            new Date().toISOString(),
-
-        completedAt:
-            new Date().toISOString(),
-
-        answers:
-            currentConversation,
-
-        score:
-            currentSession?.score || activeClaim.score,
-
-        recommendations:
-            activeClaim.recommendations?.length
-                ? activeClaim.recommendations
-                : [
-                    "Prepare concrete evidence.",
-                    "Be clear about personal ownership.",
-                    "Explain important decisions and trade-offs."
-                ],
-        answerEvaluations:
-            currentSession?.answerEvaluations || []
-
+        id: currentSession.id,
+        claimIds: [activeClaim.id],
+        startedAt: currentSession.startedAt,
+        completedAt: new Date().toISOString(),
+        answers: currentConversation.slice(-100),
+        score: Number(currentSession.score || activeClaim.score || 0),
+        recommendations: activeClaim.recommendations?.length
+            ? activeClaim.recommendations.slice(0, 5)
+            : [
+                "Prepare concrete evidence.",
+                "Be clear about personal ownership.",
+                "Explain important decisions and trade-offs."
+            ],
+        answerEvaluations: currentSession.answerEvaluations || []
     };
 
-    sessions.unshift(session);
+    sessions = [session, ...sessions.filter(item => item.id !== session.id)]
+        .slice(0, MAX_SESSIONS);
 
-    save();
-
-    updateDashboard();
-
+    return save();
 }
-
 
 function renderHistory() {
 
-    const container =
-        document.getElementById("historyList");
+    const container = document.getElementById("historyList");
 
     if (!sessions.length) {
-
         container.innerHTML = `
             <div class="empty">
-
                 <div class="empty-icon">▣</div>
-
-                <strong>
-                    No practice sessions yet.
-                </strong>
-
-                <p class="subtitle">
-                    Complete a defense session to see it here.
-                </p>
-
+                <strong>No practice sessions yet.</strong>
+                <p class="subtitle">Complete a defense session to see it here.</p>
             </div>
         `;
-
         return;
-
     }
 
+    container.innerHTML = sessions.map(session => {
+        const claim = claims.find(item => session.claimIds?.includes(item.id));
+        const claimText = claim?.text || "Claim no longer available";
+        const answerCount = (session.answers || []).filter(item => item.role === "user").length;
 
-    container.innerHTML =
-        sessions.map(session => `
-
+        return `
             <div class="card" style="margin-bottom:12px">
-
-                <div style="
-                    display:flex;
-                    justify-content:space-between;
-                    gap:20px;
-                    align-items:center;
-                ">
-
-                    <div>
-
-                        <strong>
-                            Defense Session
-                        </strong>
-
-                        <p class="subtitle">
-                            ${new Date(
-                                session.startedAt
-                            ).toLocaleString()}
-                        </p>
-
+                <div style="display:flex;justify-content:space-between;gap:20px;align-items:flex-start;">
+                    <div style="min-width:0">
+                        <strong>Defense Session</strong>
+                        <p class="subtitle">${new Date(session.completedAt || session.startedAt).toLocaleString()}</p>
+                        <p style="margin:8px 0 0;line-height:1.5">${escapeHTML(truncate(claimText, 180))}</p>
+                        <small class="stat-label">${answerCount} answer${answerCount === 1 ? "" : "s"}</small>
                     </div>
-
-                    <div>
-
-                        <strong>
-                            ${session.score}/100
-                        </strong>
-
+                    <div style="text-align:right;white-space:nowrap">
+                        <strong>${Math.round(session.score || 0)}/100</strong>
+                        <div class="stat-label">defense score</div>
                     </div>
-
                 </div>
-
             </div>
-
-        `).join("");
-
+        `;
+    }).join("");
 }
-
 
 /* =========================================================
    HELP
@@ -2954,78 +3206,56 @@ function closeHelp() {
 ========================================================= */
 
 function exportData() {
-
     const data = {
-
-        product:
-            "Defend Your Experience",
-
-        exportedAt:
-            new Date().toISOString(),
-
+        schemaVersion: STORAGE_VERSION,
+        product: "Defend Your Experience",
+        exportedAt: new Date().toISOString(),
         claims,
-
         sessions
-
     };
 
-    const blob =
-        new Blob(
-            [JSON.stringify(data, null, 2)],
-            { type: "application/json" }
-        );
-
-    const url =
-        URL.createObjectURL(blob);
-
-    const a =
-        document.createElement("a");
-
-    a.href = url;
-
-    a.download =
-        "defend-your-experience-data.json";
-
-    a.click();
-
-    URL.revokeObjectURL(url);
+    downloadFile(
+        JSON.stringify(data, null, 2),
+        `defend-your-experience-data-${Date.now()}.json`,
+        "application/json;charset=utf-8"
+    );
 
     toast("Data exported.");
-
 }
-
 
 /* =========================================================
    RESET
 ========================================================= */
 
 function resetData() {
-
-    const confirmed =
-        confirm(
-            "Are you sure? This will remove all locally saved claims and sessions."
-        );
+    const confirmed = confirm(
+        "Reset all local data? This will permanently remove your saved claims and sessions from this browser. Export your data first if you may need it later."
+    );
 
     if (!confirmed) return;
 
+    try {
+        localStorage.removeItem(STORAGE_KEYS.claims);
+        localStorage.removeItem(STORAGE_KEYS.sessions);
+    } catch (error) {
+        console.error("Could not clear local storage.", error);
+    }
+
     claims = [];
-
     sessions = [];
-
-    save();
+    activeClaim = null;
+    currentSession = null;
+    currentConversation = [];
+    waitingForAI = false;
 
     updateDashboard();
-
     renderClaims();
-
     renderHistory();
-
     renderReport();
+    renderInterviewClaims();
 
     toast("All local data reset.");
-
 }
-
 
 /* =========================================================
    HELPERS
